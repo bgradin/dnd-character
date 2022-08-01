@@ -1,4 +1,6 @@
 import React from 'react';
+import { register } from "../../../data";
+
 import './CharacterEquipment.scss';
 
 export default function CharacterEquipment() {
@@ -8,27 +10,58 @@ export default function CharacterEquipment() {
                 <div className="character-equipment__stats">
                     <div className="character-equipment__stats-item">
                         <span className="character-equipment__stats-item-text">CP</span>
-                        <input type="text" className="character-equipment__stats-item-input"/>
+                        <input
+                            name="cp"
+                            type="text"
+                            className="character-equipment__stats-item-input"
+                            ref={(input) => register(input)}
+                        />
                     </div>
                     <div className="character-equipment__stats-item">
                         <span className="character-equipment__stats-item-text">SP</span>
-                        <input type="text" className="character-equipment__stats-item-input"/>
+                        <input
+                            name="sp"
+                            type="text"
+                            className="character-equipment__stats-item-input"
+                            ref={(input) => register(input)}
+                        />
                     </div>
                     <div className="character-equipment__stats-item">
                         <span className="character-equipment__stats-item-text">EP</span>
-                        <input type="text" className="character-equipment__stats-item-input"/>
+                        <input
+                            name="ep"
+                            type="text"
+                            className="character-equipment__stats-item-input"
+                            ref={(input) => register(input)}
+                        />
                     </div>
                     <div className="character-equipment__stats-item">
                         <span className="character-equipment__stats-item-text">GP</span>
-                        <input type="text" className="character-equipment__stats-item-input"/>
+                        <input
+                            name="gp"
+                            type="text"
+                            className="character-equipment__stats-item-input"
+                            ref={(input) => register(input)}
+                        />
                     </div>
                     <div className="character-equipment__stats-item">
                         <span className="character-equipment__stats-item-text">PP</span>
-                        <input type="text" className="character-equipment__stats-item-input"/>
+                        <input
+                            name="pp"
+                            type="text"
+                            className="character-equipment__stats-item-input"
+                            ref={(input) => register(input)}
+                        />
                     </div>
                 </div>
                 <div className="character-equipment__textarea">
-                    <textarea name="" id="" cols="30" rows="19"></textarea>
+                    <textarea
+                        name="equipment"
+                        id=""
+                        cols="30"
+                        rows="19"
+                        ref={(input) => register(input)}
+                    ></textarea>
                 </div>
             </div>
             <span className="character-attack-spellcasting__text">Equipment</span>

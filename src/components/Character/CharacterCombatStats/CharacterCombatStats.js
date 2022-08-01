@@ -1,4 +1,6 @@
 import React from 'react';
+import { register } from "../../../data";
+
 import './CharacterCombatStats.scss';
 
 export default function CharacterCombatStats() {
@@ -6,15 +8,30 @@ export default function CharacterCombatStats() {
         <div className="character-combat-stats">
             <div className="character-combat-stats-row">
                 <div className="character-combat-stats__armor">
-                    <input type="text" className="character-combat-stats__input"/>
+                    <input
+                        name="armorClass"
+                        type="text"
+                        className="character-combat-stats__input"
+                        ref={(input) => register(input)}
+                    />
                     <span className="character-combat-stats__text">Armor <br /> Class</span>
                 </div>
                 <div className="character-combat-stats__initiative">
-                    <input type="text" className="character-combat-stats__input"/>
+                    <input
+                        name="initiative"
+                        type="text"
+                        className="character-combat-stats__input"
+                        ref={(input) => register(input)}
+                    />
                     <span className="character-combat-stats__text">Initiative</span>
                 </div>
                 <div className="character-combat-stats__speed">
-                    <input type="text" className="character-combat-stats__input"/>
+                    <input
+                        name="speed"
+                        type="text"
+                        className="character-combat-stats__input"
+                        ref={(input) => register(input)}
+                    />
                     <span className="character-combat-stats__text">Speed</span>
                 </div>
             </div>
@@ -22,13 +39,33 @@ export default function CharacterCombatStats() {
                 <div className="character-combat-stats__hitpoints-current">
                     <div className="character-combat-stats__hitpoints-current-wrap">
                         <label className="character-combat-stats__hitpoints-current-text" htmlFor="hitpointsMax">Hit Point Maximum</label>
-                        <input className="form-input-underline" type="text" name="hitpointsMax" id="hitpointsMax"/>
+                        <input
+                            className="form-input-underline"
+                            type="text"
+                            name="hitpointsMax"
+                            id="hitpointsMax"
+                            ref={(input) => register(input)}
+                        />
                     </div>
-                    <textarea className="character-combat-stats__hitpoints-current-textarea" name="hitpointsMaxText" id="hitpointsMaxText" cols="30" rows="3"></textarea>
+                    <textarea
+                        className="character-combat-stats__hitpoints-current-textarea"
+                        name="hitpointsMaxText"
+                        id="hitpointsMaxText"
+                        cols="30"
+                        rows="3"
+                        ref={(input) => register(input)}
+                    ></textarea>
                     <span className="character-combat-stats__text">Current Hit Points</span>
                 </div>
                 <div className="character-combat-stats__hitpoints-temp">
-                    <textarea className="character-combat-stats__hitpoints-temp-textarea" name="" id="" cols="30" rows="4"></textarea>
+                    <textarea
+                        className="character-combat-stats__hitpoints-temp-textarea"
+                        name="tempHitPoints"
+                        id=""
+                        cols="30"
+                        rows="4"
+                        ref={(input) => register(input)}
+                    ></textarea>
                     <span className="character-combat-stats__text">Temporary Hit Points</span>
                 </div>
             </div>
@@ -36,16 +73,35 @@ export default function CharacterCombatStats() {
                 <div className="character-combat-stats__hit">
                     <div className="flex">
                         <label className="form-input-underline-label" htmlFor="hitDiceTotal">Total</label>
-                        <input className="form-input-underline" type="text" name="hitDiceTotal" id="hitDiceTotal"/>
+                        <input
+                            className="form-input-underline"
+                            type="text"
+                            name="hitDiceTotal"
+                            id="hitDiceTotal"
+                            ref={(input) => register(input)}
+                        />
                     </div>
                     <div className="flex character-combat-stats__hit-dice-used">
                         <label className="form-input-underline-label" htmlFor="hitDiceUsed">Used</label>
-                        <input className="form-input-underline" type="text" name="hitDiceUsed" id="hitDiceUsed"/>
+                        <input
+                            className="form-input-underline"
+                            type="text"
+                            name="hitDiceUsed"
+                            id="hitDiceUsed"
+                            ref={(input) => register(input)}
+                        />
                     </div>
                     <span className="character-combat-stats__text">Hit Dice</span>
                 </div>
                 <div className="character-combat-stats__death-saves">
-                    <textarea className="character-combat-stats__death-saves-textarea" name="" id="" cols="30" rows="4"></textarea>
+                    <textarea
+                        className="character-combat-stats__death-saves-textarea"
+                        name="deathSaves"
+                        id=""
+                        cols="30"
+                        rows="4"
+                        ref={(input) => register(input)}
+                    ></textarea>
                     <span className="character-combat-stats__text">Death Saves</span>
                 </div>
             </div>
