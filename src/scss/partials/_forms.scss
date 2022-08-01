@@ -1,12 +1,17 @@
+.form-input-wrap {
+    padding-left: 4px;
+    padding-right: 4px;
+}
 .form-input {
     display: block;
     border: none;
+    border-bottom: 1px solid $grey;
     width: 100%;
-    background-color: transparent;
+    background-color: $grey-light;
 }
 .form-input-label {
     display: block;
-    text-transform: uppercase;
+    font-weight: 500;
 }
 .form-input-underline-label {
     margin-right: 5px;
@@ -15,7 +20,7 @@
 .form-input-underline {
     border: none;
     border-bottom: 1px solid $grey;
-    background-color: transparent;
+    background-color: $grey-light;
     text-align: center;
 }
 .form-row {
@@ -59,7 +64,7 @@
         display: block;
         width: 25px;
         height: 1px;
-        background-color: black;
+        background-color: $grey;
     }
 }
 .check-input__input {
@@ -70,6 +75,7 @@
     &:focus {
         outline: none;
     }
+    background: $grey-light;
 }
 .check-group__text {
     display: block;

@@ -35,8 +35,9 @@
     padding: 5px 0 0;
     text-align: center;
     border: none;
-    font-size: 20px;
-    background-color: transparent;
+    font-size: 18px;
+    background-color: $grey-light;
+    border-bottom: 1px solid $grey;
 }
 .character-combat-stats__text {
     display: block;
@@ -44,6 +45,9 @@
     text-transform: uppercase;
     font-size: 12px;
     margin-bottom: 20px;
+}
+.character-combat-stats__hit-dice-used {
+    margin: 8px 0 0;
 }
 .character-combat-stats__hitpoints {
     .character-combat-stats__text {
@@ -74,7 +78,7 @@
 .character-combat-stats__hitpoints-current-textarea {
     display: block;
     width: 100%;
-    background: transparent;
+    background: $grey-light;
     resize: none;
     border: none;
     margin-bottom: 10px;
@@ -91,7 +95,7 @@
 .character-combat-stats__hitpoints-temp-textarea {
     border: none;
     resize: none;
-    background: transparent;
+    background: $grey-light;
     margin-bottom: 5px;
 }
 .character-combat-stats__hit, 
@@ -126,5 +130,5 @@
     width: 100%;
     resize: none;
     border: none;
-    background: transparent;
+    background: $grey-light;
 }

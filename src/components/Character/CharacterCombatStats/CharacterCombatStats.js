@@ -38,6 +38,10 @@ export default function CharacterCombatStats() {
                         <label className="form-input-underline-label" htmlFor="hitDiceTotal">Total</label>
                         <input className="form-input-underline" type="text" name="hitDiceTotal" id="hitDiceTotal"/>
                     </div>
+                    <div className="flex character-combat-stats__hit-dice-used">
+                        <label className="form-input-underline-label" htmlFor="hitDiceUsed">Used</label>
+                        <input className="form-input-underline" type="text" name="hitDiceUsed" id="hitDiceUsed"/>
+                    </div>
                     <span className="character-combat-stats__text">Hit Dice</span>
                 </div>
                 <div className="character-combat-stats__death-saves">

@@ -22,15 +22,14 @@
 }
 .character-stats__item-input-ability-score {
     display: block;
-    max-width: 48px;
+    max-width: 42px;
     width: 100%;
-    margin: auto auto 2px;
+    margin: 8px auto -4px;
     border: none;
-    background-color: transparent;
+    background-color: $grey-light;
     text-align: center;
-    padding: 8px 0 0;
     border-radius: 50%;
-    font-size: 16px;
+    font-size: 24px;
     &:focus {
         outline: none;
     }
@@ -45,4 +44,6 @@
     background: transparent;
     text-align: center;
     font-weight: bold;
+    background: $grey-light;
+    border-bottom: 1px solid $grey;
 }

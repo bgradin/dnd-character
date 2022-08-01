@@ -14,7 +14,7 @@
     input {
         display: block;
         width: 100%;
-        background: darken($grey-light, 5%);
+        background: $grey-light;
         padding: 5px;
     }
     th:first-of-type, td {
@@ -36,6 +36,7 @@
 .character-attack-spellcasting__table-item {
     margin-bottom: 5px;
     border: none;
+    border-bottom: 1px solid $grey;
     &:first-of-type, &:last-of-type {
         width: 110px;
     }
@@ -50,6 +51,7 @@
     resize: none;
     border: none;
     margin-bottom: 15px;
+    background: $grey-light;
 }
 .character-attack-spellcasting__text {
     display: block;
