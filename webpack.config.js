@@ -9,8 +9,8 @@ module.exports = {
     path: path.resolve(__dirname, 'public', 'assets'),
     filename: 'bundle.js'
   },
-  mode: process.env.production ? "production" : "development",
-  devServer: process.env.production ? undefined : {
+  mode: process.env.PRODUCTION ? "production" : "development",
+  devServer: process.env.PRODUCTION ? undefined : {
     contentBase: path.join(__dirname, "public"),
     port: 3000,
     hot: true,
@@ -19,7 +19,7 @@ module.exports = {
     compress: true,
     writeToDisk: true,
   },
-  watch: !process.env.production,
+  watch: !process.env.PRODUCTION,
   watchOptions: {
     poll: 1000,
   },
