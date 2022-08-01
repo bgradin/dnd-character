@@ -37,5 +37,5 @@ export function register(input) {
   }
 
   input.addEventListener("change", handleInputChange);
-  input.addEventListener("keydown", handleInputChange)
+  input.addEventListener("keyup", handleInputChange)
 }
