@@ -29,10 +29,13 @@ export function register(input) {
     }
   });
 
-  input.addEventListener("change", () => {
+  function handleInputChange() {
     const value = input instanceof HTMLInputElement && input.type === "checkbox"
       ? input.checked
       : input.value;
     store(input.name, value);
-  });
+  }
+
+  input.addEventListener("change", handleInputChange);
+  input.addEventListener("keydown", handleInputChange)
 }
