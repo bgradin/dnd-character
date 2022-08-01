@@ -21,7 +21,7 @@
   },
   "scripts": {
     "build": "PRODUCTION=true webpack",
-    "dev": "webpack"
+    "dev": "webpack-dev-server"
   },
   "eslintConfig": {
     "extends": "react-app"
