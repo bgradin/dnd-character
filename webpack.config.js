@@ -19,6 +19,10 @@ module.exports = {
     compress: true,
     writeToDisk: true,
   },
+  watch: !process.env.production,
+  watchOptions: {
+    poll: 1000,
+  },
   plugins: [
     new MiniCssExtractPlugin(),
   ],
