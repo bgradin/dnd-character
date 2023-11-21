@@ -1,0 +1,33 @@
+{
+  "files": {
+    "main.css": "/dnd-character/static/css/main.0a9a7e8d.chunk.css",
+    "main.js": "/dnd-character/static/js/main.6fec2b51.chunk.js",
+    "main.js.map": "/dnd-character/static/js/main.6fec2b51.chunk.js.map",
+    "runtime-main.js": "/dnd-character/static/js/runtime-main.65fb8cb0.js",
+    "runtime-main.js.map": "/dnd-character/static/js/runtime-main.65fb8cb0.js.map",
+    "static/js/2.dec5b92c.chunk.js": "/dnd-character/static/js/2.dec5b92c.chunk.js",
+    "static/js/2.dec5b92c.chunk.js.map": "/dnd-character/static/js/2.dec5b92c.chunk.js.map",
+    "index.html": "/dnd-character/index.html",
+    "precache-manifest.80fcc47c9d137d489ef9a835e06bd2c9.js": "/dnd-character/precache-manifest.80fcc47c9d137d489ef9a835e06bd2c9.js",
+    "service-worker.js": "/dnd-character/service-worker.js",
+    "static/css/main.0a9a7e8d.chunk.css.map": "/dnd-character/static/css/main.0a9a7e8d.chunk.css.map",
+    "static/js/2.dec5b92c.chunk.js.LICENSE.txt": "/dnd-character/static/js/2.dec5b92c.chunk.js.LICENSE.txt",
+    "static/media/CharacterCombatStats.scss": "/dnd-character/static/media/hitPointsTemp.e0566c0e.svg",
+    "static/media/CharacterAttacksSpellcasting.scss": "/dnd-character/static/media/attacksSpellcasting.283f3703.svg",
+    "static/media/CharacterEquipment.scss": "/dnd-character/static/media/equipment.466d2713.svg",
+    "static/media/CharacterHeader.scss": "/dnd-character/static/media/headerInfo.839de546.svg",
+    "static/media/CharacterInspiration.scss": "/dnd-character/static/media/inspiration.b6de3187.svg",
+    "static/media/CharacterPassiveWisdom.scss": "/dnd-character/static/media/passiveWisdomBody.dead8d7e.svg",
+    "static/media/CharacterProficiency.scss": "/dnd-character/static/media/proficiencyBonusBody.428913ed.svg",
+    "static/media/CharacterProficiencyOther.scss": "/dnd-character/static/media/proficiencyOther.e0b33c7c.svg",
+    "static/media/CharacterSavingThrows.scss": "/dnd-character/static/media/savingThrows.519538c2.svg",
+    "static/media/CharacterSkillScores.scss": "/dnd-character/static/media/skillScores.807ff16d.svg",
+    "static/media/CharacterStats.scss": "/dnd-character/static/media/stat.6b70027d.svg"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.65fb8cb0.js",
+    "static/js/2.dec5b92c.chunk.js",
+    "static/css/main.0a9a7e8d.chunk.css",
+    "static/js/main.6fec2b51.chunk.js"
+  ]
+}

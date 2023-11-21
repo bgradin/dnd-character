@@ -1,0 +1,97 @@
+@use "../../../breakpoints";
+
+$properties: margin, padding;
+$sides: top, bottom, left, right;
+$multipliers: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20;
+$increment: 4px;
+
+.box {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+
+  &.vertical {
+    @include breakpoints.all-breakpoints {
+      flex-direction: column;
+    }
+  }
+
+  &.horizontal {
+    @include breakpoints.all-breakpoints {
+      flex-direction: row;
+    }
+  }
+
+  &.align-start {
+    @include breakpoints.all-breakpoints {
+      align-items: flex-start;
+    }
+  }
+
+  &.align-center {
+    @include breakpoints.all-breakpoints {
+      align-items: center;
+    }
+  }
+
+  &.align-end {
+    @include breakpoints.all-breakpoints {
+      align-items: flex-end;
+    }
+  }
+
+  &.justify-start {
+    @include breakpoints.all-breakpoints {
+      justify-content: flex-start;
+    }
+  }
+
+  &.justify-center {
+    @include breakpoints.all-breakpoints {
+      justify-content: center;
+    }
+  }
+
+  &.justify-end {
+    @include breakpoints.all-breakpoints {
+      justify-content: flex-end;
+    }
+  }
+
+  @each $property in $properties {
+    @each $multiplier in $multipliers {
+      // uniform
+      &.#{property}-#{multiplier} {
+        @include breakpoints.all-breakpoints {
+          #{$property}: $increment * $multiplier;
+        }
+      }
+
+      // horizontal
+      &.#{property}-x-#{multiplier} {
+        @include breakpoints.all-breakpoints {
+          #{$property}-left: $increment * $multiplier;
+          #{$property}-right: $increment * $multiplier;
+        }
+      }
+
+      // vertical
+      &.#{property}-y-#{multiplier} {
+        @include breakpoints.all-breakpoints {
+          #{$property}-top: $increment * $multiplier;
+          #{$property}-bottom: $increment * $multiplier;
+        }
+      }
+
+      @each $side in $sides {
+        $propertySide: #{property}-#{side};
+
+        &.#{propertySide}-#{multiplier} {
+          @include breakpoints.all-breakpoints {
+            #{propertySide}: $increment * $multiplier;
+          }
+        }
+      }
+    }
+  }
+}

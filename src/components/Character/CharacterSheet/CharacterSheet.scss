@@ -1,0 +1,41 @@
+@use "../../../breakpoints";
+@use "sass:selector";
+
+.character-sheet {
+  width: 100%;
+  max-width: 440px;
+  margin: 0 auto;
+
+  @include breakpoints.tablet {
+    max-width: none;
+    margin: 0;
+  }
+
+  > .body {
+    width: 100%;
+
+    > div {
+      width: 100%;
+
+      @include breakpoints.tablet {
+        width: 50%;
+      }
+    }
+
+    > .left-column {
+      @include breakpoints.tablet {
+        float: left;
+      }
+
+      .character-stats-right-column {
+        width: 100%;
+      }
+    }
+
+    > .right-column {
+      @include breakpoints.tablet {
+        float: right;
+      }
+    }
+  }
+}
