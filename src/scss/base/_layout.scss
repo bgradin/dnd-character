@@ -18,14 +18,14 @@
         max-width: 1140px;
         width: 100%;
         margin: 0 auto;
-        padding: 0 12px;
+        padding: 20px 12px;
     
         @include breakpoints.unsupported-size {
             display: none;
         }
     
         @include breakpoints.tablet {
-            padding: 0 24px;
+            padding: 20px 24px;
         }
     }
 }

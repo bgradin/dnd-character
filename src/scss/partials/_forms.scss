@@ -9,6 +9,12 @@
     width: 100%;
     background-color: $grey-light;
 }
+label {
+    display: inline-block;
+    margin-top: 4px;
+    font-size: 14px;
+    font-weight: 500;
+}
 .form-input-label {
     display: block;
     font-weight: 500;
@@ -25,6 +31,10 @@
 }
 .form-row {
     display: flex;
+
+    > .form-input-wrap {
+        flex: 1;
+    }
 }
 .check-group {
     // border: 2px solid black;
