@@ -25,10 +25,16 @@
     > .left-column {
       @include breakpoints.tablet {
         float: left;
+        padding-right: 20px;
       }
 
       .character-stats-right-column {
         width: 100%;
+
+        > .content {
+          max-width: 350px;
+          margin: 0 auto;
+        }
       }
     }
 

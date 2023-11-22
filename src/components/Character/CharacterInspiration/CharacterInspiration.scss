@@ -1,13 +1,9 @@
 .character-inspiration {
     width: 100%;
     display: flex;
+    justify-content: center;
     min-height: 40px;
-    margin-bottom: 15px;
-}
-.character-inspiration__head {
-    // background-image: url('../../../img/headSquare.svg');
-    // background-repeat: no-repeat;
-    // background-size: cover;
+    margin-bottom: 8px;
 }
 
 .character-inspiration-btn {
@@ -36,8 +32,8 @@
 .character-inspiration__body {
     display: flex;
     align-self: center;
-    width: 100%;
-    min-height: 40px;
+    width: 150px;
+    height: 40px;
     background-image: url('../../../img/inspiration.svg');
     background-repeat: no-repeat;
     background-size: contain;

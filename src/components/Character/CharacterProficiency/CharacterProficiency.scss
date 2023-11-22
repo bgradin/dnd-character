@@ -3,7 +3,8 @@
 .character-proficiency {
     width: 100%;
     display: flex;
-    margin-bottom: 10px;
+    justify-content: center;
+    margin-bottom: 8px;
 }
 .character-proficiency__head {
     background-repeat: no-repeat;
@@ -38,8 +39,8 @@
 .character-proficiency__body {
     display: flex;
     align-self: center;
-    width: 100%;
-    min-height: 43px;
+    width: 152px;
+    height: 43px;
     padding: 0 15px 0 10px;
     background-image: url('../../../img/proficiencyBonusBody.svg');
     background-repeat: no-repeat;

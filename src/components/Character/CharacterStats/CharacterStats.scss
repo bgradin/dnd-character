@@ -1,9 +1,7 @@
 @import '../../../scss/base/variables';
 
 .character-stats {
-    max-width: 125px;
-    width: 100%;
-    padding: 25px 15px;
+    margin-right: 20px;
 }
 .character-stats__item {
     background-image: url('../../../img/stat.svg');
@@ -11,19 +9,17 @@
     background-size: cover;
     display: flex;
     flex-direction: column;
-    width: 100%;
-    min-height: 110px;
+    width: 110px;
+    min-height: 130px;
     text-align: center;
     padding: 8px 0 6px 0;
-    margin-bottom: 15px;
-}
-.character-stats__item-label {
+    margin-bottom: 12px;
 }
 .character-stats__item-input-ability-score {
     display: block;
     max-width: 42px;
     width: 100%;
-    margin: 8px auto -4px;
+    margin: 14px auto -4px;
     border: none;
     background-color: $grey-light;
     text-align: center;
@@ -38,7 +34,7 @@
     padding: 9px 0;
     font-size: 20px;
     max-width: 60px;
-    margin: 0 auto;
+    margin: 8px auto 0;
     border: none;
     background: transparent;
     text-align: center;

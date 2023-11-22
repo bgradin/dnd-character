@@ -2,11 +2,9 @@
 
 .character-passive-wisdom {
     display: flex;
-    align-items: flex-start;
+    justify-content: center;
     width: 100%;
-}
-.character-passive-wisdom__head {
-
+    margin-bottom: 8px;
 }
 .character-passive-wisdom__head-btn {
     position: relative;
@@ -27,8 +25,8 @@
     font-size: 20px;
 }
 .character-passive-wisdom__body {
-    width: 100%;
-    min-height: 45px;
+    width: 296px;
+    height: 45px;
     padding: 13px 0;
     align-self: center;
     background-image: url('../../../img/passiveWisdomBody.svg');

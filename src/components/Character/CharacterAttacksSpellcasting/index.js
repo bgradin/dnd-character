@@ -77,12 +77,17 @@ export default function CharacterAttacksSpellcasting() {
                 <textarea
                     className="character-attack-spellcasting__textarea"
                     name="atkSpellNotes"
-                    id=""
+                    id="atkSpellNotes"
                     cols="30"
                     rows="13"
                     ref={(input) => register(input)}
                 ></textarea>
-                <span className="character-attack-spellcasting__text">Attack & Spellcasting</span>
+                <label
+                    htmlFor="atkSpellNotes"
+                    className="character-attack-spellcasting__text"
+                >
+                    Attacks & Spellcasting
+                </label>
             </div>
         </div>
     )

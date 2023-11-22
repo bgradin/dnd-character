@@ -13,11 +13,11 @@ label {
     display: inline-block;
     margin-top: 4px;
     font-size: 14px;
-    font-weight: 500;
+    font-weight: bold;
 }
 .form-input-label {
     display: block;
-    font-weight: 500;
+    font-weight: bold;
 }
 .form-input-underline-label {
     margin-right: 5px;
@@ -39,7 +39,6 @@ label {
 .check-group {
     // border: 2px solid black;
     width: 100%;
-    padding-top: 5px;
 }
 .check-input  {
     display: flex;

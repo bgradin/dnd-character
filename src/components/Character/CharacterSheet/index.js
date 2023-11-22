@@ -25,10 +25,12 @@ export default function CharacterSheet() {
         <Box>
           <CharacterStats />
           <div className="character-stats-right-column">
-            <CharacterInspiration />
-            <CharacterProficiency />
-            <CharacterSavingThrows />
-            <CharacterSkillScores />
+            <div className="content">
+              <CharacterInspiration />
+              <CharacterProficiency />
+              <CharacterSavingThrows />
+              <CharacterSkillScores />
+            </div>
           </div>
         </Box>
         <CharacterPassiveWisdom />
