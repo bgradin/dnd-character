@@ -7,19 +7,22 @@ module.exports = {
   entry: path.resolve(__dirname, 'src', 'index.js'),
   output: {
     path: path.resolve(__dirname, 'public', 'assets'),
-    filename: 'bundle.js'
+    filename: 'bundle.js',
+    publicPath: process.env.PRODUCTION ? 'auto' : '/assets/',
+    hashFunction: 'xxhash64'
   },
   mode: process.env.PRODUCTION ? "production" : "development",
   devServer: process.env.PRODUCTION ? undefined : {
-    contentBase: path.join(__dirname, "public"),
+    static: { directory: path.join(__dirname, "public") },
     port: 3000,
+    proxy: [
+      { context: ['/api'], target: 'http://localhost:5000' },
+    ],
     hot: true,
     open: true,
-    progress: true,
     compress: true,
-    writeToDisk: true,
+    devMiddleware: { writeToDisk: true },
   },
-  watch: !process.env.PRODUCTION,
   watchOptions: {
     poll: 1000,
   },
@@ -50,9 +53,9 @@ module.exports = {
       {
         test: /\.(jpe?g|png|gif|svg)$/i,
         exclude: EXCLUDE_REGEX,
-        loader: 'file-loader',
-        options: {
-          name: '../images/[name].[ext]'
+        type: 'asset/resource',
+        generator: {
+          filename: '../images/[name][ext]'
         }
       },
       {

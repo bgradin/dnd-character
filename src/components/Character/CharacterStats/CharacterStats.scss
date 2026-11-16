@@ -1,4 +1,4 @@
-@import '../../../scss/base/variables';
+@use '../../../scss/base/variables' as *;
 
 .character-stats {
     margin-right: 20px;

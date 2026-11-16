@@ -1,4 +1,4 @@
-@use "../breakpoints";
+@use "../../breakpoints";
 
 * {
     box-sizing: border-box;
@@ -35,4 +35,54 @@
 }
 .row {
     margin: 0 -15px;
+}
+
+.signed-out {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    color: #505050;
+    background: #f6f6f6;
+
+    &__panel {
+        width: 100%;
+        max-width: 480px;
+        padding: 40px 24px;
+        border: 2px solid #505050;
+        border-radius: 12px;
+        background: #fff;
+        text-align: center;
+        box-shadow: 0 0 0 4px #fff, 0 0 0 5px #bdbdbd;
+    }
+
+    h1 {
+        margin: 0 0 28px;
+        font-size: 36px;
+        font-weight: normal;
+    }
+
+    &__actions {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 12px;
+
+        a {
+            min-width: 120px;
+            padding: 10px 20px;
+            border: 1px solid #505050;
+            border-radius: 4px;
+            color: inherit;
+            font-family: 'Open Sans Condensed', sans-serif;
+            font-size: 20px;
+            text-decoration: none;
+
+            &:hover, &:focus-visible {
+                color: #fff;
+                background: #505050;
+            }
+        }
+    }
 }
