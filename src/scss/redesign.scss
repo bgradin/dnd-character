@@ -408,17 +408,20 @@ textarea.formula-active {
 }
 .character-header__name::before,
 .character-header__name::after {
-  // Match the middle strip even when cap heights round to fractional pixels.
-  background-size: 100% auto;
+  // Fill each cap viewport without intrinsic aspect-ratio letterboxing.
+  background-size: 100% 100%;
+  position: relative;
+  z-index: 1;
 }
 .character-header__name::before {
   padding-top: 7.4246%;
+  top: 1px;
 }
 .character-header__name::after {
   padding-top: 6.9606%;
+  top: -1px;
 }
 .character-header__name > .form-input-wrap {
-  // Stretch the straight edges once to avoid fractional repeat-tile sizing.
   background: url("../img/headerCharMiddle.svg") no-repeat;
   background-size: 100% 100%;
 }
