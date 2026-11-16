@@ -3,7 +3,7 @@ const assert = require('node:assert/strict');
 const vm = require('node:vm');
 const fs = require('node:fs');
 
-function app(cached, handler, rawResponses = false) {
+function app(cached, handler, rawResponses = false, mode = 'development') {
   const entries = new Map(cached ? [['dnd-character:v1:7', JSON.stringify(cached)]] : []);
   const events = {};
   class Input {
@@ -11,6 +11,7 @@ function app(cached, handler, rawResponses = false) {
     addEventListener(_, callback) { this.edit = callback; }
   }
   const context = vm.createContext({
+    process: { env: { NODE_ENV: mode } },
     fetch: async (...args) => ({ ok: true, status: 200, json: async () => {
       const result = await handler(...args);
       if (rawResponses) return result;
@@ -23,10 +24,21 @@ function app(cached, handler, rawResponses = false) {
     document: { addEventListener() {} }, navigator: { onLine: true },
     HTMLInputElement: Input, HTMLTextAreaElement: class {},
   });
-  vm.runInContext((fs.readFileSync('src/formulas.js', 'utf8') + '\n' + fs.readFileSync('src/data.js', 'utf8').replace(/^import .*;\n/, '')).replace(/export /g, '') + '\nthis.api = { initialize, register, save, prepareToLeave, setFormula, previewFormula, listSheets, createSheet, deleteSheet, preloadSheets };', context);
+  vm.runInContext((fs.readFileSync('src/formulas.js', 'utf8') + '\n' + fs.readFileSync('src/data.js', 'utf8').replace(/^import .*;\n/, '')).replace(/export /g, '') + '\nthis.api = { request, initialize, register, save, prepareToLeave, setFormula, previewFormula, listSheets, createSheet, deleteSheet, preloadSheets };', context);
   return { api: context.api, entries, events, Input };
 }
 const user = { id: 7, firstName: 'Ada', lastName: 'Lovelace' };
+
+test('production API calls use the www domain and include session cookies', async () => {
+  const calls = [];
+  const env = app(null, (url, options) => { calls.push([url, options]); return {}; }, true, 'production');
+  for (const path of ['/api/v1/site/session', '/api/v1/site/logout', '/api/dnd/v1', '/api/dnd/v1/hero%2Fid']) {
+    await env.api.request(path);
+    const [url, options] = calls.at(-1);
+    assert.equal(url, `https://www.gradinware.com${path}`);
+    assert.equal(options.credentials, 'include');
+  }
+});
 
 test('single-character servers list, recover old local edits, and save to the original endpoint', async () => {
   const cached = { schemaVersion: 1, revision: 11, data: { 'character-name': 'Albin Oathsworn', 'strength-score': '18', playerName: 'Brian Gradin' }, lastEditedAt: 200, lastSavedAt: 100 };

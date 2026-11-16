@@ -15,7 +15,9 @@ open on that server and return to the app on port 3000; the development server
 proxies `/api` requests to port 5000.
 
 In production, the app runs at `https://dnd.gradinware.com` and uses
-`https://www.gradinware.com` for login and registration. SSO receives the full
+`https://www.gradinware.com` for all API calls, login, and registration. API
+requests include session cookies. The backend must allow credentialed CORS
+requests from `https://dnd.gradinware.com`. SSO receives the full
 app URL (including its path, query, and fragment) as `returnUrl`. The SSO server
 must allow this return origin and share its session with the app subdomain.
 

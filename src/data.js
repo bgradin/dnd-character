@@ -48,11 +48,12 @@ let lastSavedAt = 0;
 let leavingConfirmed = false;
 
 export async function request(path, options = {}) {
+  const apiOrigin = process.env.NODE_ENV === 'production' ? 'https://www.gradinware.com' : '';
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 10000);
   try {
-    const response = await fetch(path, {
-      credentials: 'same-origin', signal: controller.signal, ...options,
+    const response = await fetch(`${apiOrigin}${path}`, {
+      credentials: 'include', signal: controller.signal, ...options,
       headers: { 'Content-Type': 'application/json', 'X-Site-Action': '1', ...options.headers }
     });
     if (!response.ok) {
