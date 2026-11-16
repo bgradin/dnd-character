@@ -406,6 +406,11 @@ textarea.formula-active {
 .character-header__name {
   background: none;
 }
+.character-header__name::before,
+.character-header__name::after {
+  // Match the middle strip even when cap heights round to fractional pixels.
+  background-size: 100% auto;
+}
 .character-header__name::before {
   padding-top: 7.4246%;
 }
