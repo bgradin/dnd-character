@@ -1,0 +1,8 @@
+.standard-button {
+  display: inline-flex; align-items: center; justify-content: center; min-height: 42px; padding: 8px 18px;
+  border: 1px solid #505050; border-radius: 4px; background: var(--paper); color: #252d26;
+  font-family: inherit; font-size: 14px; font-weight: 600; line-height: 1.4; text-decoration: none; cursor: pointer;
+  &:hover:not(:disabled), &:focus-visible { background: #405942; color: white; }
+  &:disabled { opacity: .45; cursor: default; }
+}
+.signed-out__actions .standard-button { min-width: 120px; }

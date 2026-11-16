@@ -1,0 +1,611 @@
+@import url("https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&display=swap");
+:root {
+  --forest: #c9d9c7;
+  --paper: #fffef8;
+  --ink: #252d26;
+  --formula: #356e82;
+}
+html,
+body {
+  margin: 0;
+  background: var(--forest);
+  color: #171b17;
+}
+.app,
+.signed-out {
+  background: var(--forest);
+  min-height: 100vh;
+}
+
+.main-navigation {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: #e5eddf;
+  border-bottom: 1px solid var(--ink);
+  box-shadow: 0 2px 8px #253e2412;
+}
+.main-navigation__container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.app-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  color: #171b17;
+  text-decoration: none;
+  font:
+    600 clamp(16px, 2.4vw, 26px) "Cinzel",
+    Georgia,
+    serif;
+}
+.app-brand img {
+  width: 54px;
+  height: 54px;
+  object-fit: contain;
+}
+.navigation-account {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+.navigation-session {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.sync-status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  align-self: center;
+  min-height: 42px;
+  line-height: 0;
+}
+.sync-status svg {
+  display: block;
+}
+.navigation-account p {
+  width: 100%;
+  margin: 0;
+  font-size: 14px;
+}
+// Share the double ink outline; reserve curved edges for stats frames.
+@mixin fieldset-frame {
+  background: transparent;
+  border: 2px solid transparent;
+  border-radius: 0;
+  border-image: url("../img/fieldsetFrameStraight.svg") 14 fill / 14px / 0
+    stretch;
+  box-shadow: none;
+}
+
+.default-box,
+.character-header__info,
+.character-stats__item,
+.character-saving-throws,
+.character-skill-scores,
+.character-proficiency-other,
+.character-attack-spellcasting,
+.character-equipment,
+.character-combat-stats__armor,
+.character-combat-stats__initiative,
+.character-combat-stats__speed,
+.character-combat-stats__hitpoints-current,
+.character-combat-stats__hitpoints-temp,
+.character-combat-stats__hit,
+.character-combat-stats__death-saves {
+  @include fieldset-frame;
+  &::before,
+  &::after {
+    display: none;
+  }
+}
+.character-stats__item,
+.character-combat-stats__armor,
+.character-combat-stats__initiative,
+.character-combat-stats__speed {
+  border-image-source: url("../img/fieldsetFrame.svg");
+}
+.character-header__info {
+  padding: 10px 0;
+}
+.character-header__name {
+  margin-top: 12px;
+}
+.character-header__name::before,
+.character-header__name::after,
+.character-header__info-wrapper > .banner-wrapper > .banner::before,
+.character-header__info-wrapper > .banner-wrapper > .banner::after {
+  background-color: transparent;
+}
+.character-stats__item {
+  position: relative;
+  padding: 12px 8px 20px;
+  margin-bottom: 20px;
+}
+.character-stats__item-input-ability-modifier {
+  order: 3;
+  border: 2px solid var(--ink);
+  border-radius: 50%;
+  background: var(--paper);
+  margin: 10px auto -36px;
+  min-height: 38px;
+  box-shadow:
+    0 0 0 3px var(--paper),
+    0 0 0 4px var(--ink);
+}
+.character-stats__item-input-ability-score {
+  border-radius: 4px;
+  margin: 12px auto 8px;
+}
+.character-stats {
+  padding-bottom: 10px;
+}
+.character-inspiration,
+.character-proficiency,
+.character-passive-wisdom {
+  align-items: center;
+}
+.character-inspiration-btn,
+.character-proficiency-btn,
+.character-passive-wisdom__head-btn {
+  position: relative;
+  top: 2px;
+  left: 3px;
+  flex: 0 0 54px;
+  width: 54px;
+  height: 60px;
+  z-index: 1;
+  @include fieldset-frame;
+  border-image-source: url("../img/fieldsetFrame.svg");
+  svg {
+    visibility: hidden;
+    width: 52px;
+    height: 50px;
+  }
+  input {
+    transform: translate(-50%, -50%);
+  }
+}
+.character-inspiration__body,
+.character-proficiency__body,
+.character-passive-wisdom__body {
+  @include fieldset-frame;
+  transform: none;
+  margin-left: -8px;
+  padding: 10px 12px 10px 16px;
+  min-height: 42px;
+  height: auto;
+}
+.character-equipment .money-background {
+  background-image: none;
+}
+input,
+textarea {
+  color: #171b17;
+}
+input:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid #537c48;
+  outline-offset: 1px;
+}
+input.formula-active,
+textarea.formula-active {
+  outline: 2px solid var(--formula);
+  outline-offset: -1px;
+  background-color: #eaf2f4;
+}
+.formula-trigger {
+  opacity: 0.5;
+  position: fixed;
+  z-index: 150;
+  width: 28px;
+  height: 26px;
+  padding: 0;
+  border: 1px solid #888;
+  border-radius: 4px;
+  color: #666;
+  background: #f3f3ee;
+  cursor: pointer;
+  font:
+    italic bold 15px Georgia,
+    serif;
+}
+.formula-trigger:hover {
+  opacity: 1;
+}
+.formula-trigger.is-on {
+  color: white;
+  background: var(--formula);
+  border-color: var(--formula);
+}
+.formula-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: #16251bb0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.formula-modal {
+  width: 680px;
+  max-width: 100%;
+  max-height: 90vh;
+  overflow: auto;
+  padding: 28px;
+  font-family: sans-serif;
+  font-size: 14px;
+  position: relative;
+}
+.formula-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.formula-heading h2 {
+  margin: 0 0 8px;
+  font:
+    600 21px "Cinzel",
+    Georgia,
+    serif;
+}
+.formula-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  padding: 6px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  position: relative;
+  top: -8px;
+}
+.formula-close:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+.formula-expression {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: 3px;
+  align-items: center;
+  min-height: 100px;
+  padding: 14px;
+  background: #f1f4ed;
+  border: 1px solid #899681;
+  border-radius: 5px;
+}
+.formula-token {
+  font-size: 17px;
+  padding: 6px 10px;
+  background: white;
+  border: 1px solid #a6afa1;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.field-token {
+  color: #214f60;
+  border-color: var(--formula);
+  background: #eaf2f4;
+}
+.formula-placeholder {
+  color: #61695c;
+}
+.formula-inserters {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  gap: 16px;
+  margin-top: 16px;
+}
+.formula-builder-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.formula-builder-row label {
+  min-width: 70px;
+}
+.formula-builder-row input,
+.formula-builder-row select {
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #6d7867;
+  border-radius: 4px;
+  background: white;
+  font-size: 16px;
+}
+.formula-operations {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 18px;
+}
+.formula-error {
+  color: #9b3526;
+}
+.formula-preview {
+  color: #214f60;
+  font-weight: bold;
+}
+.formula-hint {
+  color: #50594d;
+  line-height: 1.5;
+}
+.formula-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 24px;
+}
+.primary-button {
+  background: #356e82;
+  color: white;
+  border-color: #356e82;
+}
+@media (max-width: 700px) {
+  .formula-inserters {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 540px) {
+  .formula-modal {
+    padding: 20px;
+  }
+  .formula-builder-row {
+    flex-wrap: wrap;
+  }
+  .formula-builder-row label {
+    width: 100%;
+  }
+  .app-brand {
+    gap: 6px;
+  }
+  .app-brand img {
+    width: 38px;
+    height: 42px;
+  }
+  .main-navigation__container {
+    gap: 8px;
+  }
+  .navigation-account {
+    gap: 8px;
+  }
+  .main-navigation .standard-button {
+    padding: 8px 10px;
+  }
+}
+@media print {
+  .main-navigation,
+  .formula-trigger,
+  .formula-backdrop {
+    display: none;
+  }
+  html,
+  body,
+  .app {
+    background: white;
+  }
+}
+.character-header__name {
+  background: none;
+}
+.character-header__name::before {
+  padding-top: 7.4246%;
+}
+.character-header__name::after {
+  padding-top: 6.9606%;
+}
+.character-header__name > .form-input-wrap {
+  background: url("../img/headerCharMiddle.svg") repeat-y;
+  background-size: 100% auto;
+}
+
+// One spacing value for independent fieldsets. Attached borders within a
+// single fieldset (modifier ovals and banner stubs) keep their overlap.
+:root {
+  --fieldset-gap: 12px;
+}
+.character-header {
+  row-gap: var(--fieldset-gap);
+  column-gap: 0;
+  align-items: center;
+  margin-bottom: var(--fieldset-gap);
+}
+.character-header__name {
+  margin: 0;
+}
+.character-header__info-wrapper {
+  top: 0;
+  left: 0;
+}
+.character-inspiration,
+.character-proficiency,
+.character-passive-wisdom,
+.character-saving-throws,
+.character-skill-scores,
+.character-proficiency-other,
+.character-attack-spellcasting,
+.character-equipment,
+.character-combat-stats {
+  margin-bottom: var(--fieldset-gap);
+}
+.character-stats {
+  flex-shrink: 0;
+  margin-right: var(--fieldset-gap);
+  padding-bottom: 0;
+}
+.character-stats__item {
+  margin-bottom: calc(var(--fieldset-gap) + 16px);
+}
+.character-stats-right-column {
+  min-width: 0;
+}
+.character-combat-stats-row {
+  gap: var(--fieldset-gap);
+  margin-bottom: var(--fieldset-gap);
+}
+.character-combat-stats-row:last-child {
+  margin-bottom: 0;
+}
+.character-combat-stats__armor,
+.character-combat-stats__initiative,
+.character-combat-stats__speed,
+.character-combat-stats__hit,
+.character-combat-stats__death-saves {
+  margin: 0;
+}
+.character-combat-stats__hit,
+.character-combat-stats__death-saves {
+  width: calc((100% - var(--fieldset-gap)) / 2);
+}
+.character-combat-stats__hitpoints {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fieldset-gap);
+  margin-bottom: var(--fieldset-gap);
+}
+@media (min-width: 768px) {
+  .character-header__name {
+    width: 40%;
+    top: 2px;
+  }
+  .character-header__info-wrapper {
+    width: 60%;
+    left: -2px;
+  }
+  .character-sheet > .body > .left-column {
+    padding-right: var(--fieldset-gap);
+  }
+}
+
+.character-header__info-wrapper > .banner-wrapper {
+  flex-shrink: 0;
+}
+.character-header__info-wrapper > .banner-wrapper > .banner {
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100% calc(100% - 32px);
+}
+
+.formula-token.is-selected {
+  background: #d6e7ef;
+  border-color: #214f60;
+  box-shadow: 0 0 0 2px #214f60;
+}
+.formula-token[draggable="true"] {
+  cursor: grab;
+}
+.formula-token:active {
+  cursor: grabbing;
+}
+.formula-cursor {
+  flex: 0 0 10px;
+  align-self: stretch;
+  min-height: 34px;
+  padding: 0;
+  border: 0;
+  border-radius: 2px;
+  background: transparent;
+  cursor: text;
+  position: relative;
+}
+.formula-cursor.is-active::after,
+.formula-cursor:hover::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  left: 4px;
+  width: 2px;
+  background: #214f60;
+}
+.formula-cursor:focus-visible,
+.formula-token:focus-visible {
+  outline: 2px solid #214f60;
+  outline-offset: 3px;
+}
+
+.sheet-selection {
+  padding: 28px;
+  background: var(--paper);
+  border-radius: 8px;
+}
+@media (max-width: 600px) {
+  .sheet-selection {
+    padding: 20px;
+  }
+}
+.sheet-selection__heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+  h1 {
+    margin: 0 0 8px;
+    font-family: Cinzel, serif;
+  }
+  p {
+    margin: 0;
+  }
+}
+.sheet-selection__list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+  padding: 0;
+  list-style: none;
+}
+.sheet-card {
+  display: block;
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  h2 {
+    margin: 0 0 12px;
+    font-family: Cinzel, serif;
+  }
+  p {
+    margin: 0;
+  }
+}
+
+.sheet-selection__item {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 24px;
+  border: 1px solid #6b7965;
+  border-radius: 6px;
+  background: #fffef8;
+}
+.sheet-card__actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  flex-shrink: 0;
+  gap: 12px;
+}
+.sheet-delete {
+  align-self: flex-end;
+  color: #842a24;
+  border-color: #842a24;
+}

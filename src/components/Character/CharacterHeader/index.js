@@ -25,13 +25,24 @@ export default function CharacterHeader() {
                             <div className="form-row">
                                 <div className="form-input-wrap">
                                     <input
-                                        id="classAndLevel"
-                                        name="classAndLevel"
+                                        id="class"
+                                        name="class"
                                         type="text"
                                         className="form-input"
                                         ref={(input) => register(input)}
                                     />
-                                    <label htmlFor="classAndLevel" className="form-input-label">Class &amp; Level</label>
+                                    <label htmlFor="class" className="form-input-label">Class</label>
+                                </div>
+                                <div className="form-input-wrap">
+                                    <input
+                                        id="level"
+                                        name="level"
+                                        type="text"
+                                        inputMode="numeric"
+                                        className="form-input"
+                                        ref={(input) => register(input)}
+                                    />
+                                    <label htmlFor="level" className="form-input-label">Level</label>
                                 </div>
                                 <div className="form-input-wrap">
                                     <input

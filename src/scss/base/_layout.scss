@@ -4,6 +4,18 @@
     box-sizing: border-box;
 }
 .app {
+    & > .container,
+    .main-navigation__container {
+        max-width: 1140px;
+        width: 100%;
+        margin: 0 auto;
+        padding: 20px 12px;
+
+        @include breakpoints.tablet {
+            padding: 20px 24px;
+        }
+    }
+
     & > .unsupported-size {
         display: none;
         padding: 20px;
@@ -14,18 +26,9 @@
         }
     }
 
-    & > .container {
-        max-width: 1140px;
-        width: 100%;
-        margin: 0 auto;
-        padding: 20px 12px;
-    
+    & > div.container {
         @include breakpoints.unsupported-size {
             display: none;
-        }
-    
-        @include breakpoints.tablet {
-            padding: 20px 24px;
         }
     }
 }
@@ -69,20 +72,5 @@
         justify-content: center;
         gap: 12px;
 
-        a {
-            min-width: 120px;
-            padding: 10px 20px;
-            border: 1px solid #505050;
-            border-radius: 4px;
-            color: inherit;
-            font-family: 'Open Sans Condensed', sans-serif;
-            font-size: 20px;
-            text-decoration: none;
-
-            &:hover, &:focus-visible {
-                color: #fff;
-                background: #505050;
-            }
-        }
     }
 }
