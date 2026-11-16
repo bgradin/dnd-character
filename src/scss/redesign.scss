@@ -418,8 +418,9 @@ textarea.formula-active {
   padding-top: 6.9606%;
 }
 .character-header__name > .form-input-wrap {
-  background: url("../img/headerCharMiddle.svg") repeat-y;
-  background-size: 100% auto;
+  // Stretch the straight edges once to avoid fractional repeat-tile sizing.
+  background: url("../img/headerCharMiddle.svg") no-repeat;
+  background-size: 100% 100%;
 }
 
 // One spacing value for independent fieldsets. Attached borders within a
