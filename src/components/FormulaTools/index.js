@@ -1,3 +1,4 @@
+import { referenceFormulaFields } from "../../startupData";
 import React, { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import {
@@ -179,7 +180,8 @@ export default function FormulaTools() {
       input.name !== (editing && editing.name),
   );
   const labels = Object.fromEntries(
-    sheetFields().map((input) => [input.name, fieldLabel(input)]),
+    [...sheetFields().map((input) => [input.name, fieldLabel(input)]),
+      ...referenceFormulaFields.map(field => [field.name, field.label])],
   );
   return createPortal(
     <React.Fragment>
@@ -347,7 +349,7 @@ export default function FormulaTools() {
                   onChange={(event) => setReference(event.target.value)}
                 >
                   <option value="">Choose a field</option>
-                  {fields.map((input) => (
+                  {[...fields, ...referenceFormulaFields].map((input) => (
                     <option key={input.name} value={input.name}>
                       {labels[input.name]}
                     </option>

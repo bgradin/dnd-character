@@ -33,7 +33,7 @@ function setup({ storageUnavailable = false, quotaExceeded = false, corrupt = fa
       return fail ? new Response('', { status: 503 }) : new Response(corrupt ? '{"name":"wrong"}' : files[decodeURIComponent(url.split('/data/')[1])]);
     },
   });
-  vm.runInContext(fs.readFileSync('src/startupData.js', 'utf8').replace(/export /g, '') + '\nthis.api = { synchronizeData, readReferenceData };', context);
+  vm.runInContext(fs.readFileSync('src/startupData.js', 'utf8').replace(/export /g, '') + '\nthis.api = { synchronizeData, readReferenceData, referenceFormulaValue };', context);
   return { ...context.api, stored, calls, setFiles: value => { files = value; }, fail: () => { fail = true; } };
 }
 
@@ -85,4 +85,21 @@ test('corrupt downloads are rejected before entering the cache', async () => {
   const env = setup({ corrupt: true });
   await assert.rejects(env.synchronizeData(() => {}), /verification failed/);
   assert.equal(env.stored.size, 0);
+});
+
+
+test('formula reference values include every loaded file and remove stale sources', async () => {
+  const env = setup();
+  env.setFiles({ 'races.json': JSON.stringify({ races: [{ name: 'Custom', baseWalkingSpeed: 45 }] }),
+    'classes.json': JSON.stringify({ classes: [{ name: 'Custom', hitPointsAtFirstLevel: { base: 10 }, hitPointsAtHigherLevels: { average: 6 } }] }) });
+  await env.synchronizeData(() => {});
+  const selected = () => ' custom ';
+  assert.equal(env.referenceFormulaValue('race.baseWalkingSpeed', selected), 45);
+  assert.equal(env.referenceFormulaValue('class.hitPointsAtFirstLevel', selected), 10);
+  assert.equal(env.referenceFormulaValue('class.hitPointsAtHigherLevels', selected), 6);
+  await env.synchronizeData(() => {});
+  assert.equal(env.referenceFormulaValue('race.baseWalkingSpeed', selected), 45);
+  env.setFiles({});
+  await env.synchronizeData(() => {});
+  assert.equal(env.referenceFormulaValue('race.baseWalkingSpeed', selected), 0);
 });

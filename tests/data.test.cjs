@@ -24,8 +24,8 @@ function app(cached, handler, rawResponses = false, mode = 'development') {
     document: { addEventListener() {} }, navigator: { onLine: true },
     HTMLInputElement: Input, HTMLTextAreaElement: class {},
   });
-  vm.runInContext((fs.readFileSync('src/formulas.js', 'utf8') + '\n' + fs.readFileSync('src/request.js', 'utf8') + '\n' + fs.readFileSync('src/data.js', 'utf8').replace(/^(?:import .*|export \{ request \} from .*);\n/gm, '')).replace(/export /g, '') + '\nthis.api = { request, initialize, register, save, prepareToLeave, setFormula, previewFormula, listSheets, createSheet, deleteSheet, preloadSheets };', context);
-  return { api: context.api, entries, events, Input };
+  vm.runInContext((fs.readFileSync('src/startupData.js', 'utf8') + '\n' + fs.readFileSync('src/formulas.js', 'utf8') + '\n' + fs.readFileSync('src/request.js', 'utf8') + '\n' + fs.readFileSync('src/data.js', 'utf8').replace(/^(?:import .*|export \{ request \} from .*);\n/gm, '')).replace(/export /g, '') + '\nthis.api = { request, initialize, register, save, prepareToLeave, setFormula, previewFormula, listSheets, createSheet, deleteSheet, preloadSheets };', context);
+  return { api: context.api, entries, events, Input, loadReferences: docs => vm.runInContext(`formulaDocuments.set("test", ${JSON.stringify(docs)})`, context) };
 }
 const user = { id: 7, firstName: 'Ada', lastName: 'Lovelace' };
 
@@ -316,7 +316,7 @@ test('new sheets persist all default formulas and skills recalculate with profic
   proficient.checked = false; proficient.edit();
   assert.equal(skill.value, '2');
   await env.api.save();
-  assert.equal(Object.keys(payload.data.formulas).length, 24);
+  assert.equal(Object.keys(payload.data.formulas).length, 26);
   assert.deepEqual(payload.data.formulas['survival-score'].at(-1), { field: 'wisdom-modifier' });
 });
 
@@ -424,7 +424,7 @@ test('selection lists sheets and creates characters with valid defaults', async 
     const payload = JSON.parse(options.body);
     assert.equal(payload.revision, 0);
     assert.equal(payload.data.playerName, 'Ada Lovelace');
-    assert.equal(Object.keys(payload.data.formulas).length, 24);
+    assert.equal(Object.keys(payload.data.formulas).length, 26);
     return { sheetId: 'new', revision: 1 };
   });
   assert.equal((await env.api.listSheets())[0].sheetId, 'existing');
@@ -580,4 +580,39 @@ test('failed preloads are retried when opening the sheet', async () => {
   await assert.rejects(env.api.preloadSheets(user), /offline/);
   await env.api.initialize(() => {}, user, 'hero');
   assert.equal(reads, 2);
+});
+
+
+test('missing combat stats default to formulas using the selected race, class, level and Constitution modifier', async () => {
+  const env = app(null, () => ({ schemaVersion: 1, revision: 1, data: {
+    race: 'Wood Elf', class: 'Wizard', level: '3', 'constitution-modifier': '2',
+  } }));
+  env.loadReferences({
+    races: [{ name: 'Elf', baseWalkingSpeed: 30, subraces: [{ name: 'Wood Elf',
+      traits: [{ rules: { baseWalkingSpeed: 35 } }] }] }],
+    classes: [{ name: 'Wizard', hitPointsAtFirstLevel: { base: 6 }, hitPointsAtHigherLevels: { average: 4 } }],
+  });
+  await env.api.initialize(() => {}, user);
+  const speed = new env.Input('speed'), hp = new env.Input('hitpointsMax');
+  env.api.register(speed); env.api.register(hp);
+  assert.equal(speed.value, '35');
+  assert.equal(hp.value, '20');
+  const level = new env.Input('level'); env.api.register(level);
+  level.value = '4'; level.edit();
+  assert.equal(hp.value, '24');
+  const race = new env.Input('race'); env.api.register(race);
+  race.value = 'unknown'; race.edit();
+  assert.equal(speed.value, '0');
+});
+
+test('combat defaults preserve manual zeroes and custom formulas', async () => {
+  const env = app(null, () => ({ schemaVersion: 1, revision: 1, data: {
+    speed: '0', formulas: { hitpointsMax: ['42'] },
+  } }));
+  await env.api.initialize(() => {}, user);
+  const speed = new env.Input('speed'), hp = new env.Input('hitpointsMax');
+  env.api.register(speed); env.api.register(hp);
+  assert.equal(speed.value, '0');
+  assert.equal(speed.readOnly, false);
+  assert.equal(hp.value, '42');
 });

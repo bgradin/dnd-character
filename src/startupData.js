@@ -1,6 +1,33 @@
 // Cache responses at their normal URLs so reference-data readers can reuse them.
 export const DATA_CACHE = 'dnd-reference-data-v1';
 const memory = new Map();
+const formulaDocuments = new Map();
+export const referenceFormulaFields = [
+  { name: 'race.baseWalkingSpeed', label: 'Walking speed' },
+  { name: 'class.hitPointsAtFirstLevel', label: 'Class hit points at first level' },
+  { name: 'class.hitPointsAtHigherLevels', label: 'Class hit points at higher levels' },
+];
+export function referenceFormulaValue(name, resolve) {
+  if (!referenceFormulaFields.some(field => field.name === name)) return undefined;
+  const raceField = name.startsWith('race.');
+  const selected = String(resolve(raceField ? 'race' : 'class') || '').trim().toLowerCase();
+  for (const document of formulaDocuments.values()) {
+    for (const entry of (document && document[raceField ? 'races' : 'classes']) || []) {
+      let match = entry;
+      if (raceField && entry.name.toLowerCase() !== selected) {
+        const subrace = (entry.subraces || []).find(item => item.name.toLowerCase() === selected);
+        if (!subrace) continue;
+        const override = (subrace.traits || []).find(trait => trait.rules && trait.rules.baseWalkingSpeed !== undefined);
+        match = { ...entry, ...subrace, ...(override ? { baseWalkingSpeed: override.rules.baseWalkingSpeed } : {}) };
+      } else if (entry.name.toLowerCase() !== selected) continue;
+      const value = raceField ? match.baseWalkingSpeed : name.endsWith('FirstLevel')
+        ? match.hitPointsAtFirstLevel && match.hitPointsAtFirstLevel.base
+        : match.hitPointsAtHigherLevels && match.hitPointsAtHigherLevels.average;
+      if (Number.isFinite(value)) return value;
+    }
+  }
+  return 0;
+}
 export async function readReferenceData(path) {
   const url = new URL(`data/${path.split('/').map(encodeURIComponent).join('/')}`, document.baseURI).href;
   const cache = await openDataCache();
@@ -57,6 +84,10 @@ export async function synchronizeData(progress) {
           try { await cache.put(url, saved); } catch (_) { /* Memory fallback above. */ }
         }
       }
+      if (path.toLowerCase().endsWith('.json')) {
+        const loaded = memory.get(url) || (cache && await cache.match(url));
+        formulaDocuments.set(url, await loaded.clone().json());
+      }
       completed += Math.max(1, entry.size);
       progress(total ? completed / total : 1);
     }
@@ -66,5 +97,6 @@ export async function synchronizeData(progress) {
     for (const key of await cache.keys()) if (!retained.has(key.url)) await cache.delete(key);
   }
   for (const url of memory.keys()) if (!retained.has(url)) memory.delete(url);
+  for (const url of formulaDocuments.keys()) if (!retained.has(url)) formulaDocuments.delete(url);
   progress(1);
 }

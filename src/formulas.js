@@ -14,6 +14,10 @@ export function isProficiencyField(name) {
 
 export function defaultFormulas() {
   return Object.fromEntries([
+    ['speed', ['max', '(', { field: 'race.baseWalkingSpeed' }, ',', '0', ')']],
+    ['hitpointsMax', [{ field: 'class.hitPointsAtFirstLevel' }, '+', '(',
+      { field: 'class.hitPointsAtHigherLevels' }, '*', { field: 'level' }, '+',
+      { field: 'constitution-modifier' }, ')']],
     ...abilities.map(ability => [`${ability}-modifier`,
       ['floor', '(', 'max', '(', '(', { field: `${ability}-score` }, '-', '10', ')', '/', '2', ',', '0', ')', ')']]),
     ...Object.entries(skillAbilities).map(([skill, ability]) => [`${skill}-score`,

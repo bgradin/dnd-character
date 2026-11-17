@@ -1,3 +1,4 @@
+import { referenceFormulaValue } from './startupData';
 import { request } from './request';
 export { request } from './request';
 import { evaluateFormula, defaultFormulas, isProficiencyField } from './formulas';
@@ -199,6 +200,13 @@ export async function initialize(onStatus, user, selectedSheetId) {
     lastEditedAt = Math.max(Date.now(), lastSavedAt + 1);
     dirty = true;
   }
+  for (const name of ['speed', 'hitpointsMax']) {
+    if ((data[name] === undefined || data[name] === null || data[name] === '') && !fieldFormula(name)) {
+      data.formulas = { ...data.formulas, [name]: defaultFormulas()[name] };
+      lastEditedAt = Math.max(Date.now(), lastSavedAt + 1);
+      dirty = true;
+    }
+  }
   if (data.playerName === undefined) {
     data.playerName = [user.firstName, user.lastName].filter(Boolean).join(' ');
     lastEditedAt = Math.max(Date.now(), lastSavedAt + 1);
@@ -291,6 +299,8 @@ export const sheetFields = () => Array.from(fields.values()).filter(input => inp
 export const fieldFormula = name => (data.formulas || {})[name];
 export function formulaValue(name, formulas = data.formulas || {}, visiting = new Set()) {
   if (visiting.has(name)) throw new Error('This formula creates a circular reference.');
+  const reference = referenceFormulaValue(name, field => data[field]);
+  if (reference !== undefined) return reference;
   if (!formulas[name]) {
     const raw = data[name];
     if (isProficiencyField(name)) return raw === true ? 1 : 0;
