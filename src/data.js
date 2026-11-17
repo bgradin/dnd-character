@@ -3,6 +3,26 @@ import { request } from './request';
 export { request } from './request';
 import { evaluateFormula, defaultFormulas, isProficiencyField } from './formulas';
 let data = {};
+const currentSchemaVersion = 2;
+const supportedSchema = version => version === 1 || version === currentSchemaVersion;
+
+// Preserve legacy text verbatim; it may describe a custom attack rather than a reference item.
+export function migrateSheetData(source) {
+  const migrated = { ...source };
+  if (Object.prototype.hasOwnProperty.call(source, 'attacksSpellcasting')) {
+    if (!Array.isArray(source.attacksSpellcasting)) throw new Error('Invalid saved attacks and spellcasting list.');
+    return migrated;
+  }
+  migrated.attacksSpellcasting = [1, 2, 3]
+    .filter(index => ['Name', 'Bonus', 'Dmg'].some(key => source[`atkSpell${key}${index}`]))
+    .map(index => ({
+      id: `legacy-${index}`, collection: 'weapons', legacy: true,
+      name: source[`atkSpellName${index}`] || 'Unnamed attack',
+      ...(source[`atkSpellBonus${index}`] !== undefined ? { bonus: source[`atkSpellBonus${index}`] } : {}),
+      ...(source[`atkSpellDmg${index}`] !== undefined ? { damage: source[`atkSpellDmg${index}`] } : {}),
+    }));
+  return migrated;
+}
 const sheetsPath = '/api/dnd/v1';
 const legacySheetId = '__legacy__';
 let legacyBackend = false;
@@ -55,7 +75,7 @@ let leavingConfirmed = false;
 export async function listSheets(user) {
   if (user && sheetLists.has(user)) return sheetLists.get(user);
   const result = await request(sheetsPath);
-  legacyBackend = Boolean(result && result.schemaVersion === 1 && result.data &&
+  legacyBackend = Boolean(result && supportedSchema(result.schemaVersion) && result.data &&
     typeof result.data === 'object' && !Array.isArray(result.data) && !('sheets' in result));
   if (legacyBackend) {
     const sheets = [{ ...result, sheetId: legacySheetId, legacy: true }];
@@ -75,9 +95,9 @@ export async function createSheet(user) {
   if (legacyBackend) throw new Error('Creating additional characters requires an updated server.');
   const sheet = await request(sheetsPath, {
     method: 'POST',
-    body: JSON.stringify({ schemaVersion: 1, revision: 0, data: {
+    body: JSON.stringify({ schemaVersion: currentSchemaVersion, revision: 0, data: {
       playerName: [user.firstName, user.lastName].filter(Boolean).join(' '),
-      formulas: defaultFormulas()
+      formulas: defaultFormulas(), attacksSpellcasting: []
     } })
   });
   updateSheetList(user, sheet);
@@ -105,10 +125,10 @@ export async function deleteSheet(id, user) {
 
 function persist() {
   cacheOpenedSheet();
-  if (sheetId) updateSheetList(activeUser, { sheetId, data: { ...data }, revision, schemaVersion: 1 });
+  if (sheetId) updateSheetList(activeUser, { sheetId, data: { ...data }, revision, schemaVersion: currentSchemaVersion });
   if (!storageKey) return;
   try {
-    localStorage.setItem(storageKey, JSON.stringify({ schemaVersion: 1, sheetId, data, revision, lastEditedAt, lastSavedAt }));
+    localStorage.setItem(storageKey, JSON.stringify({ schemaVersion: currentSchemaVersion, sheetId, data, revision, lastEditedAt, lastSavedAt }));
   } catch (_) { /* Autosave still works when browser storage is unavailable. */ }
 }
 
@@ -152,8 +172,9 @@ export async function initialize(onStatus, user, selectedSheetId) {
       if (legacy && (legacy.sheetId === selectedSheetId ||
         (selectedSheetId === legacySheetId && !legacy.sheetId))) cached = legacy;
     }
-    if (!cached || cached.schemaVersion !== 1 || !cached.data || typeof cached.data !== 'object' || Array.isArray(cached.data)) cached = null;
+    if (!cached || !cached.data || typeof cached.data !== 'object' || Array.isArray(cached.data)) cached = null;
   } catch (_) { cached = null; }
+  if (cached && !supportedSchema(cached.schemaVersion)) throw new Error('Your recovery copy needs a newer application version.');
   blocked = false;
   dirty = false;
   sheetId = selectedSheetId || cached && cached.sheetId || null;
@@ -177,12 +198,12 @@ export async function initialize(onStatus, user, selectedSheetId) {
   catch (error) {
     if (!cached || error.status) throw error;
   }
-  if (document && document.schemaVersion !== 1) throw new Error('This sheet needs a newer application version.');
+  if (document && !supportedSchema(document.schemaVersion)) throw new Error('This sheet needs a newer application version.');
   // The API has no edit timestamps; recover pending edits only for the selected sheet.
   const recover = cached && (!cached.sheetId || cached.sheetId === (document && document.sheetId) || !collectionLoaded)
     && (!document || cached.lastEditedAt > cached.lastSavedAt);
   sheetId = document ? document.sheetId : collectionLoaded ? null : sheetId;
-  data = recover ? cached.data : document ? document.data : {};
+  data = { ...(recover ? cached.data : document ? document.data : {}) };
   revision = document ? document.revision : collectionLoaded ? 0 : cached.revision;
   lastEditedAt = recover ? cached.lastEditedAt : 0;
   lastSavedAt = recover ? cached.lastSavedAt : Date.now();
@@ -212,6 +233,14 @@ export async function initialize(onStatus, user, selectedSheetId) {
     lastEditedAt = Math.max(Date.now(), lastSavedAt + 1);
     dirty = true;
   }
+  const needsMigration = (document && document.schemaVersion === 1)
+    || (recover && cached.schemaVersion === 1)
+    || !Object.prototype.hasOwnProperty.call(data, 'attacksSpellcasting');
+  data = migrateSheetData(data);
+  if (needsMigration) {
+    lastEditedAt = Math.max(Date.now(), lastEditedAt + 1, lastSavedAt + 1);
+    dirty = true;
+  }
   persist();
   notify(!collectionLoaded ? 'Disconnected' : dirty ? 'Pending' : 'Synced');
   if (dirty) schedule(0);
@@ -236,7 +265,7 @@ export async function save() {
     }
     return request(sheetId && !(legacyBackend && sheetId === legacySheetId) ? `${sheetsPath}/${encodeURIComponent(sheetId)}` : sheetsPath, {
       method: sheetId ? 'PUT' : 'POST', keepalive: true,
-      body: JSON.stringify({ schemaVersion: 1, revision: sheetId ? revision : 0, data: JSON.parse(snapshot) })
+      body: JSON.stringify({ schemaVersion: currentSchemaVersion, revision: sheetId ? revision : 0, data: JSON.parse(snapshot) })
     });
   })().then(result => {
     sheetId = legacyBackend ? legacySheetId : result.sheetId;
@@ -297,6 +326,11 @@ const listeners = new Set();
 export const subscribeFields = callback => { listeners.add(callback); return () => listeners.delete(callback); };
 export const sheetFields = () => Array.from(fields.values()).filter(input => input.isConnected !== false);
 export const fieldFormula = name => (data.formulas || {})[name];
+export const attackEntries = () => data.attacksSpellcasting || [];
+export function setAttackEntries(entries) {
+  data.attacksSpellcasting = entries;
+  changed();
+}
 export function formulaValue(name, formulas = data.formulas || {}, visiting = new Set()) {
   if (visiting.has(name)) throw new Error('This formula creates a circular reference.');
   const reference = referenceFormulaValue(name, field => data[field]);

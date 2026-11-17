@@ -21,8 +21,11 @@ export default function HyperlinkChoiceField({ name, label, choices = [], collec
   const pageRef = pageRefs.current.get(current.key);
   const isClass = collection === 'classes';
   const isSubclass = collection === 'subclasses';
+  const isRace = collection === 'races';
   const selectedClass = isSubclass ? sheetFields().find(field => field.name === 'class')?.value : undefined;
-  const availableChoices = isSubclass
+  const availableChoices = current.kind === 'subraces'
+    ? (referenceChoiceDetails('races', current.race)?.entry.subraces || []).map(subrace => subrace.name)
+    : isSubclass
     ? referenceChoiceDetails('classes', selectedClass)?.entry.subclasses || []
     : choices;
 
@@ -43,7 +46,14 @@ export default function HyperlinkChoiceField({ name, label, choices = [], collec
     setOpen(false);
     input.current.focus({ preventScroll: true });
   }
-  function save(value) {
+  function save(value, trigger = `select:${value}`) {
+    if (isRace) {
+      const race = referenceChoiceDetails('races', value);
+      if (!race?.parent && race?.entry.subraces?.length) {
+        push({ key: `subraces:${value}`, kind: 'subraces', title: `Choose ${value} subrace`, race: value }, trigger);
+        return;
+      }
+    }
     if (isClass) {
       const subclass = input.current.value === value ? sheetFields().find(field => field.name === 'subclass')?.value || '' : '';
       setClassChoice(value, subclass);
@@ -112,7 +122,8 @@ export default function HyperlinkChoiceField({ name, label, choices = [], collec
   function choiceList(values) {
     return <ul className="hyperlink-choice-options">
       {values.map(value => {
-        const selected = input.current.value === value;
+        const selected = input.current.value === value || (isRace && current.kind === 'list'
+          && referenceChoiceDetails('races', input.current.value)?.parent?.name === value);
         return <li key={value}>
           <span className="choice-option-name">{value}{selected && <small>Current selection</small>}</span>
           <div className="choice-option-actions">
@@ -158,14 +169,15 @@ export default function HyperlinkChoiceField({ name, label, choices = [], collec
                 {current.kind !== 'list' && <nav className="choice-page-navigation" aria-label={`${label} navigation`}>
                   <button type="button" className="choice-back" onClick={back}><ChevronLeft size={18} aria-hidden="true" /> Back</button>
                   {current.kind === 'details' && <button type="button" className="standard-button" data-choice-key="details-select"
-                    aria-label={`Select ${current.value}`} onClick={() => save(current.value)}>Select</button>}
+                    aria-label={`Select ${current.value}`} onClick={() => save(current.value, 'details-select')}>Select</button>}
                 </nav>}
                 <div className="choice-page-body" tabIndex={current.kind === 'details' ? '0' : undefined}
                   aria-label={current.kind === 'details' ? `${current.title} details` : undefined}>
-                  {current.kind === 'details' ? <ReferenceDetails details={isSubclass
+                  {current.kind === 'details' ? <ReferenceDetails collection={collection} details={isSubclass
                     ? referenceChoiceDetails('classes', selectedClass, current.value)
                     : referenceChoiceDetails(collection, current.value)} />
                     : <React.Fragment>
+                      {current.kind === 'subraces' && <p>Choose a subrace for {current.race}.</p>}
                       {isSubclass && selectedClass && <React.Fragment>
                         <p>Choose a subclass for {selectedClass}.</p>
                         <button type="button" className="standard-button" aria-pressed={!input.current.value}

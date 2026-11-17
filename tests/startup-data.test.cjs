@@ -105,7 +105,7 @@ test('formula reference values include every loaded file and remove stale source
 });
 
 
-test('choice fields use sorted reference names, include subraces, and discard removed data', async () => {
+test('choice fields use sorted parent race names and discard removed data', async () => {
   const env = setup();
   env.setFiles({ 'choices.json': JSON.stringify({
     classes: [{ name: 'Wizard' }, { name: 'Bard' }],
@@ -113,7 +113,9 @@ test('choice fields use sorted reference names, include subraces, and discard re
   }), 'extra.json': JSON.stringify({ classes: [{ name: 'Bard' }] }) });
   await env.synchronizeData(() => {});
   assert.deepEqual(Array.from(env.referenceChoices('classes')), ['Bard', 'Wizard']);
-  assert.deepEqual(Array.from(env.referenceChoices('races')), ['Elf', 'High Elf']);
+  assert.deepEqual(Array.from(env.referenceChoices('races')), ['Elf']);
+  assert.deepEqual(Array.from(env.referenceChoiceDetails('races', 'Elf').entry.subraces, race => race.name), ['High Elf']);
+  assert.equal(env.referenceChoiceDetails('races', 'High Elf').parent.name, 'Elf');
   env.setFiles({});
   await env.synchronizeData(() => {});
   assert.equal(env.referenceChoices('classes').length, 0);

@@ -7,9 +7,6 @@ export function referenceChoices(collection) {
   for (const document of formulaDocuments.values()) {
     for (const entry of document[collection] || []) {
       names.add(entry.name);
-      if (collection === 'races') {
-        for (const subrace of entry.subraces || []) names.add(subrace.name);
-      }
     }
   }
   return [...names].sort((a, b) => a.localeCompare(b));

@@ -12,6 +12,9 @@ const enumFields = {
   toolTypes: "toolType",
   damageResistance: "damageType",
   damageType: "damageType",
+  properties: "weaponProperty",
+  magicType: "magicType",
+  components: "component",
   languages: "language",
   skill: "skill",
   skills: "skill",
@@ -166,12 +169,12 @@ function Fields({ entry, enums, exclude = [], headingLevel = 3 }) {
     </div>
   );
 }
-export default function ReferenceDetails({ details }) {
+export default function ReferenceDetails({ details, collection }) {
   if (!details)
     return <p>No reference details are available for this choice.</p>;
   const { entry, parent, source, enums } = details;
   return (
-    <article className="choice-reference">
+    <article className={`choice-reference${collection === 'races' ? ' choice-reference-race' : ''}`}>
       {source && (
         <p className="choice-reference-source">
           {[source.name, source.edition, entry.page && `Page ${entry.page}`]
@@ -191,7 +194,7 @@ export default function ReferenceDetails({ details }) {
           <h3>{entry.name} traits</h3>
         </section>
       )}
-      <Fields entry={entry} enums={enums} headingLevel={parent ? 4 : 3} exclude={["name", "page"]} />
+      <Fields entry={collection === 'weapons' ? { ...entry, type: enums.weaponType?.[entry.type] ?? entry.type } : entry} enums={enums} headingLevel={parent ? 4 : 3} exclude={["name", "page"]} />
     </article>
   );
 }

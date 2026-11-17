@@ -1,105 +1,49 @@
 @use '../../../scss/base/variables' as *;
 
 .character-attack-spellcasting {
-    position: relative;
-    width: 100%;
-    margin-bottom: 8px;
-    background-image: url('../../../img/boxLgMiddle.svg');
-    background-repeat: repeat-y;
-    background-size: contain;
-    
-    > * {
-        position: relative;
-        z-index: 20;
-    }
-
-    > .content {
-        display: flex;
-        flex-direction: column;
-        padding: 20px;
-    }
-
-    &::before {
-        content: "";
-        position: absolute;
-        display: block;
-        width: 100%;
-        padding-top: 7.5%;
-        background-color: white;
-        background-image: url('../../../img/boxLgTop.svg');
-        background-repeat: no-repeat;
-        background-size: contain;
-        background-position: bottom;
-    }
-
-    &::after {
-        content: "";
-        position: absolute;
-        bottom: 0;
-        display: block;
-        width: 100%;
-        padding-top: 7.5%;
-        background-color: white;
-        background-image: url('../../../img/boxLgBottom.svg');
-        background-repeat: no-repeat;
-        background-size: contain;
-        z-index: 10;
-    }
+  width: 100%;
+  min-width: 0;
+  margin-bottom: 8px;
 }
-.character-attack-spellcasting__table {
-    padding: 20px;
-
-    input {
-        display: block;
-        width: 100%;
-        background: $grey-light;
-        padding: 5px;
-    }
-    th:first-of-type, td {
-        width: 30px;
-    }
+.attack-list-content { padding: 16px; }
+.attack-list-title { margin: 0 0 12px; font-size: 16px; text-align: center; }
+.attack-list { list-style: none; margin: 0; padding: 0; }
+.attack-list > li { padding: 12px 0; border-bottom: 1px solid $grey; }
+.attack-list-heading { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }
+.attack-link {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: $hyperlink-color;
+  text-decoration: underline;
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
 }
-.character-attack-spellcasting__table-head {
-    display: flex;
-
-    > * {
-        flex: 1;
-    }
+.attack-list-heading > :first-child { font-weight: bold; }
+.attack-list-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  margin: 8px 0 0;
+  dt { font-size: 12px; }
+  dd { margin: 2px 0 0; overflow-wrap: anywhere; }
 }
-.character-attack-spellcasting__table-head-text {
-    text-transform: uppercase;
-    font-size: 12px;
-    margin-bottom: 5px;
-}
-.character-attack-spellcasting__table-body-row {
-    display: flex;
-    margin-bottom: 5px;
-
-    > * {
-        flex: 1;
-    }
-}
-.character-attack-spellcasting__table-item {
-    margin-bottom: 5px;
-    border: none;
-    border-bottom: 1px solid $grey;
-    &:first-of-type, &:last-of-type {
-        width: 110px;
-    }
-    &:nth-child(2) {
-        width: 70px;
-        margin: 0 15px 5px;
-    }
-}
+.attack-list-empty { text-align: center; }
+.attack-list-footer { display: flex; justify-content: flex-end; margin-top: 12px; }
+.attack-notes-label { display: block; margin: 12px 0 4px; font-size: 12px; }
 .character-attack-spellcasting__textarea {
-    display: block;
-    width: 100%;
-    resize: none;
-    border: none;
-    margin-bottom: 8px;
-    background: $grey-light;
+  display: block;
+  width: 100%;
+  resize: vertical;
+  border: 1px solid $grey;
+  background: $grey-light;
 }
-.character-attack-spellcasting__text {
-    display: block;
-    text-align: center;
+.attack-picker-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 8px 0;
+  label { display: flex; flex-direction: column; gap: 4px; }
+  input, select { padding: 8px; max-width: 100%; }
 }

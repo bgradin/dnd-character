@@ -24,7 +24,7 @@ function app(cached, handler, rawResponses = false, mode = 'development', locati
     document: { addEventListener() {} }, navigator: { onLine: true },
     HTMLInputElement: Input, HTMLTextAreaElement: class {},
   });
-  vm.runInContext((fs.readFileSync('src/startupData.js', 'utf8') + '\n' + fs.readFileSync('src/formulas.js', 'utf8') + '\n' + fs.readFileSync('src/request.js', 'utf8') + '\n' + fs.readFileSync('src/data.js', 'utf8').replace(/^(?:import .*|export \{ request \} from .*);\n/gm, '')).replace(/export /g, '') + '\nthis.api = { request, initialize, register, save, prepareToLeave, setFormula, previewFormula, listSheets, createSheet, deleteSheet, preloadSheets, setClassChoice };', context);
+  vm.runInContext((fs.readFileSync('src/startupData.js', 'utf8') + '\n' + fs.readFileSync('src/formulas.js', 'utf8') + '\n' + fs.readFileSync('src/request.js', 'utf8') + '\n' + fs.readFileSync('src/data.js', 'utf8').replace(/^(?:import .*|export \{ request \} from .*);\n/gm, '')).replace(/export /g, '') + '\nthis.api = { request, initialize, register, save, prepareToLeave, setFormula, previewFormula, listSheets, createSheet, deleteSheet, preloadSheets, setClassChoice, attackEntries, setAttackEntries, migrateSheetData };', context);
   return { api: context.api, entries, events, Input, loadReferences: docs => vm.runInContext(`formulaDocuments.set("test", ${JSON.stringify(docs)})`, context) };
 }
 const user = { id: 7, firstName: 'Ada', lastName: 'Lovelace' };
@@ -385,7 +385,7 @@ test('creates an empty collection with POST, then updates the returned sheet ID'
     if (options.method === 'POST') {
       assert.equal(path, '/api/dnd/v1');
       assert.equal(payload.revision, 0);
-      assert.equal(payload.schemaVersion, 1);
+      assert.equal(payload.schemaVersion, 2);
       assert.equal(payload.data.playerName, 'Ada Lovelace');
       return { sheetId: 'created/id', revision: 1 };
     }
@@ -668,7 +668,7 @@ test('class and subclass save together, restore without a migration, and keep cl
   assert.equal(subclassInput.value, 'Path of the Berserker');
   assert.equal(env.api.previewFormula('test', [{ field: 'class.hitPointsAtFirstLevel' }]), 12);
   await env.api.save();
-  assert.equal(writes.at(-1).schemaVersion, 1);
+  assert.equal(writes.at(-1).schemaVersion, 2);
   assert.equal(writes.at(-1).data.class, 'Barbarian');
   assert.equal(writes.at(-1).data.subclass, 'Path of the Berserker');
   env.api.setClassChoice('Barbarian');
@@ -680,4 +680,103 @@ test('class and subclass save together, restore without a migration, and keep cl
   await env.api.save();
   assert.equal(writes.at(-1).data.class, 'Fighter');
   assert.equal(writes.at(-1).data.subclass, '');
+});
+
+
+test('attack lists preserve legacy attacks and save any number of weapons and spells, including zero', async () => {
+  const env = app(null, () => ({ schemaVersion: 1, revision: 1, data: {
+    atkSpellName1: 'Old sword', atkSpellDmg1: '1d8 slashing', atkSpellBonus1: '+3', atkSpellNotes: 'Keep these notes',
+  } }));
+  await env.api.initialize(() => {}, user);
+  const legacy = env.api.attackEntries();
+  assert.equal(legacy.length, 1);
+  assert.equal(legacy[0].name, 'Old sword');
+  assert.equal(legacy[0].damage, '1d8 slashing');
+  const entries = Array.from({ length: 6 }, (_, index) => ({ id: String(index), name: index % 2 ? 'Aid' : 'Dagger', collection: index % 2 ? 'spells' : 'weapons' }));
+  env.api.setAttackEntries(entries);
+  let saved = JSON.parse(env.entries.get('dnd-character:v1:7')).data;
+  assert.deepEqual(saved.attacksSpellcasting, entries);
+  assert.equal(saved.atkSpellNotes, 'Keep these notes');
+  env.api.setAttackEntries([]);
+  assert.equal(env.api.attackEntries().length, 0);
+  saved = JSON.parse(env.entries.get('dnd-character:v1:7')).data;
+  assert.deepEqual(saved.attacksSpellcasting, []);
+});
+
+
+test('migration preserves custom attacks, notes and formulas and is repeatable', () => {
+  const env = app(null, () => ({}));
+  const original = { atkSpellName1: 'Dagger', atkSpellDmg1: 'Custom damage', atkSpellBonus2: '+4', atkSpellNotes: 'Notes', formulas: { speed: ['30'] } };
+  const migrated = env.api.migrateSheetData(original);
+  const plain = value => JSON.parse(JSON.stringify(value));
+  assert.equal(Object.hasOwn(original, 'attacksSpellcasting'), false);
+  for (const [key, value] of Object.entries(original)) assert.deepEqual(plain(migrated[key]), value);
+  assert.deepEqual(plain(migrated.attacksSpellcasting), [
+    { id: 'legacy-1', collection: 'weapons', legacy: true, name: 'Dagger', damage: 'Custom damage' },
+    { id: 'legacy-2', collection: 'weapons', legacy: true, name: 'Unnamed attack', bonus: '+4' },
+  ]);
+  assert.deepEqual(plain(env.api.migrateSheetData(migrated)), plain(migrated));
+  for (const entries of [[], [{ id: 's', collection: 'spells', name: 'Aid' }]]) {
+    assert.deepEqual(plain(env.api.migrateSheetData({ ...original, attacksSpellcasting: entries }).attacksSpellcasting), entries);
+  }
+  assert.throws(() => env.api.migrateSheetData({ attacksSpellcasting: null }), /Invalid saved/);
+});
+
+test('version 1 upgrades are persisted before upload and keep the server revision', async () => {
+  const writes = [];
+  const env = app(null, (_, options) => {
+    if (!options.method) return { schemaVersion: 1, revision: 7, data: { atkSpellName1: 'Custom', atkSpellNotes: 'notes' } };
+    const payload = JSON.parse(options.body);
+    assert.equal(JSON.parse(env.entries.get('dnd-character:v1:7')).schemaVersion, 2);
+    writes.push(payload);
+    return { revision: 8 };
+  });
+  await env.api.initialize(() => {}, user);
+  assert.equal(JSON.parse(env.entries.get('dnd-character:v1:7')).data.attacksSpellcasting[0].name, 'Custom');
+  await env.api.save();
+  assert.equal(writes[0].schemaVersion, 2);
+  assert.equal(writes[0].revision, 7);
+  assert.equal(writes[0].data.atkSpellNotes, 'notes');
+});
+
+test('version 1 recovery retains unsaved arrays, including an intentionally empty list', async () => {
+  for (const entries of [[], [{ id: 's', collection: 'spells', name: 'Aid' }]]) {
+    const env = app({ schemaVersion: 1, revision: 3, lastEditedAt: 20, lastSavedAt: 10,
+      data: { atkSpellName1: 'Old attack', attacksSpellcasting: entries } }, (_, options) => {
+      if (!options.method) return { schemaVersion: 1, revision: 3, data: {} };
+      const payload = JSON.parse(options.body);
+      assert.deepEqual(payload.data.attacksSpellcasting, entries);
+      assert.equal(payload.schemaVersion, 2);
+      return { revision: 4 };
+    });
+    await env.api.initialize(() => {}, user);
+    assert.deepEqual(JSON.parse(JSON.stringify(env.api.attackEntries())), entries);
+    await env.api.save();
+  }
+});
+
+test('version 2 sheets reopen without unnecessary migration or save', async () => {
+  let writes = 0;
+  const env = app(null, (_, options) => {
+    if (options.method) { writes++; return { revision: 6 }; }
+    return { schemaVersion: 2, revision: 5, data: { playerName: 'Ada', speed: '30', hitpointsMax: '10', attacksSpellcasting: [] } };
+  });
+  const statuses = [];
+  await env.api.initialize(status => statuses.push(status), user, 'sheet-1');
+  await env.api.save();
+  assert.equal(writes, 0);
+  assert.equal(statuses.at(-1), 'Synced');
+  await env.api.initialize(() => {}, user, 'sheet-1');
+  assert.equal(JSON.parse(env.entries.get('dnd-character:v1:7:sheet-1')).schemaVersion, 2);
+});
+
+test('unsupported schema versions preserve recovery copies and never upload', async () => {
+  const cached = { schemaVersion: 3, data: { playerName: 'Future' } };
+  const env = app(cached, () => { throw new Error('Must not request'); });
+  const before = env.entries.get('dnd-character:v1:7');
+  await assert.rejects(env.api.initialize(() => {}, user), /newer application/);
+  assert.equal(env.entries.get('dnd-character:v1:7'), before);
+  const remote = app(null, () => ({ schemaVersion: 3, revision: 1, data: {} }));
+  await assert.rejects(remote.api.initialize(() => {}, user), /newer application/);
+  assert.equal(remote.entries.size, 0);
 });
