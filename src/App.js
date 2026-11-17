@@ -71,16 +71,12 @@ export default function App() {
       clearAction();
       setSession(result.user);
       setSessionChecked(true);
-    } catch (error) {
-      if (error.status === 401) {
-        clearHash();
-        clearAction();
-        setSession(null);
-        setReady(false);
-        setSessionChecked(true);
-      } else {
-        setStatus(error.message);
-      }
+    } catch (_) {
+      clearHash();
+      clearAction();
+      setSession(null);
+      setReady(false);
+      setSessionChecked(true);
     }
   }
   useEffect(() => {
@@ -211,6 +207,8 @@ export default function App() {
       : ["Pending", "Syncing"].includes(status)
         ? RefreshCw
         : CloudOff;
+  if (!sessionChecked) return null;
+
   if (sessionChecked && !session)
     return (
       <main className="app signed-out">
