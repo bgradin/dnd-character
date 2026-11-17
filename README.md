@@ -22,3 +22,14 @@ app URL (including its path, query, and fragment) as `returnUrl`. The SSO server
 must allow this return origin and share its session with the app subdomain.
 
 Build production assets with `yarn build`.
+
+## Scraping local PDFs
+
+The repository provides [PDF extraction and OCR tools](docs/scraping.md) for
+user-provided documents. It does not distribute copyrighted source material or
+extracted reference content. Users are responsible for ensuring that their
+scraping, use, and redistribution comply with applicable law and licenses.
+
+Store generated data in `public/data/` and OCR caches in `.cache/`; both are
+ignored by Git. See the scraping guide for installation, commands, output
+format, and review steps.

@@ -26,3 +26,9 @@ yarn-error.log*
 .agents
 .aws
 .codex
+
+.cache/
+__pycache__/
+
+# Locally generated reference data
+/public/data/
