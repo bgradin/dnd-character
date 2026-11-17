@@ -208,6 +208,7 @@ export default function App() {
         ? RefreshCw
         : CloudOff;
   if (!sessionChecked) return null;
+  if (session && !ready && !routeError) return null;
 
   if (sessionChecked && !session)
     return (
