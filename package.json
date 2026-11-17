@@ -21,7 +21,10 @@
     "webpack-cli": "^6.0.0"
   },
   "scripts": {
+    "data:manifest": "node scripts/generate-data-manifest.cjs",
+    "prebuild": "npm run data:manifest",
     "build": "PRODUCTION=true webpack",
+    "predev": "npm run data:manifest",
     "dev": "webpack serve"
   },
   "eslintConfig": {

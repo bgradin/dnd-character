@@ -80,6 +80,25 @@ records, or assign game-specific enums. Review OCR accuracy, reading order,
 formatting, and page boundaries before using the output to build application
 data. For scanned pages, font recovery and word positions are approximate.
 
+## Data manifest
+
+`public/data/manifest.json` indexes every file under `public/data/` (including
+subfolders), except the manifest itself and the `public/data/audit/` directory.
+It is generated locally and ignored by
+Git along with the data. Run `npm run data:manifest` after adding, changing, or
+removing data files. `npm run build` and `npm run dev` also refresh it before
+starting; regenerate it manually if data changes while the dev server is running.
+
+The manifest has `schemaVersion: 1` and a `files` object keyed by paths relative
+to `/data/`. Each entry contains `sha256` (the SHA-256 of the exact file bytes)
+and `size` (bytes). Unchanged files retain the same hash across generations.
+
+Clients should fetch `/data/manifest.json` with `cache: 'no-store'`, compare each
+entry's hash with the hash saved alongside their cached file, and download new
+or changed files with `cache: 'reload'`. Save the new hash only after a successful
+download. Remove cached entries absent from the manifest. Encode each path
+segment when constructing download URLs.
+
 ## Validate the tools
 
 Tests create synthetic documents and do not require source books or generated
