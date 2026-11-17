@@ -5,12 +5,28 @@
     <link rel="icon" type="image/svg+xml" href="./dragon-head.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#c9d9c7" />
-    <link rel="stylesheet" href="assets/main.css" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&amp;display=swap" />
+    <style>
+      html, body { margin: 0; background: #c9d9c7; color: #171b17; }
+      .startup-loader { min-height: 100vh; min-height: 100dvh; display: flex; align-items: center; justify-content: center; }
+      .startup-loader__content { width: min(320px, 80vw); text-align: center; }
+      .startup-loader h1 { margin: 0 0 24px; font: 600 32px Cinzel, Georgia, serif; }
+      .startup-loader progress { display: block; width: 100%; height: 12px; accent-color: #356e42; }
+      #startup-error { color: #b00020; font: 16px/1.5 sans-serif; overflow-wrap: anywhere; }
+    </style>
     <title>DND Character Sheet</title>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root"></div>
+    <div id="root">
+      <main class="startup-loader" aria-labelledby="startup-heading">
+        <div class="startup-loader__content">
+          <h1 id="startup-heading">Loading</h1>
+          <progress id="startup-progress" max="1" value="0" aria-label="Loading progress"></progress>
+          <p id="startup-error" role="alert" hidden></p>
+        </div>
+      </main>
+    </div>
     <script src="./assets/bundle.js"></script>
   </body>
 </html>

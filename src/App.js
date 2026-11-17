@@ -14,7 +14,6 @@ import { CloudCheck, CloudOff, RefreshCw } from "lucide-react";
 import { accountUrl } from "./sso";
 import FormulaTools from "./components/FormulaTools";
 import dragonHead from "./img/dragonHead.svg";
-import { preloadSheetAssets } from "./preloadSheetAssets";
 import "./scss/redesign.scss";
 
 const Brand = () => (
@@ -29,19 +28,6 @@ const clearHash = () =>
     "",
     window.location.pathname + window.location.search,
   );
-function clearAction() {
-  const params = new URLSearchParams(window.location.search);
-  if (!params.has("action")) return;
-  params.delete("action");
-  const search = params.toString();
-  window.history.replaceState(
-    window.history.state,
-    "",
-    window.location.pathname +
-      (search ? `?${search}` : "") +
-      window.location.hash,
-  );
-}
 function requestedSheet() {
   const match = /^#\/sheets\/([^/]+)$/.exec(window.location.hash);
   if (!match) return null;
@@ -52,46 +38,26 @@ function requestedSheet() {
   }
 }
 
-export default function App() {
-  const [session, setSession] = useState(null);
-  const [ready, setReady] = useState(false);
-  const [sessionChecked, setSessionChecked] = useState(false);
+export default function App({ initialSession = null, initialSheets = [] } = {}) {
+  const [session, setSession] = useState(initialSession);
+  const [ready, setReady] = useState(Boolean(initialSession));
   const [status, setStatus] = useState("Loading…");
   const [busy, setBusy] = useState(false);
-  const [sheets, setSheets] = useState([]);
+  const [sheets, setSheets] = useState(initialSheets);
   const [activeSheet, setActiveSheet] = useState(null);
   const [routeError, setRouteError] = useState("");
   const [reload, setReload] = useState(0);
   const [creating, setCreating] = useState(false);
   const [deleting, setDeleting] = useState(null);
-  async function load() {
-    try {
-      const result = await request("/api/v1/site/session");
-      if (!result.user) clearHash();
-      clearAction();
-      setSession(result.user);
-      setSessionChecked(true);
-    } catch (_) {
-      clearHash();
-      clearAction();
-      setSession(null);
-      setReady(false);
-      setSessionChecked(true);
-    }
-  }
-  useEffect(() => {
-    load();
-  }, []);
   useEffect(() => {
     if (session) {
-      preloadSheetAssets();
       preloadSheets(session).catch(() => {});
     }
   }, [session]);
   useEffect(() => {
     if (!session) {
       const removeSheetHash = () => {
-        if (sessionChecked) clearHash();
+        clearHash();
       };
       window.addEventListener("hashchange", removeSheetHash);
       return () => window.removeEventListener("hashchange", removeSheetHash);
@@ -111,7 +77,7 @@ export default function App() {
         return;
       }
       if (disposed) return;
-      setReady(false);
+      if (next || current) setReady(false);
       setRouteError("");
       setStatus("Loading…");
       setActiveSheet(next);
@@ -153,7 +119,7 @@ export default function App() {
       disposed = true;
       window.removeEventListener("hashchange", change);
     };
-  }, [session, sessionChecked, reload]);
+  }, [session, reload]);
   async function create() {
     setCreating(true);
     setBusy(true);
@@ -207,10 +173,9 @@ export default function App() {
       : ["Pending", "Syncing"].includes(status)
         ? RefreshCw
         : CloudOff;
-  if (!sessionChecked) return null;
   if (session && !ready && !routeError) return null;
 
-  if (sessionChecked && !session)
+  if (!session)
     return (
       <main className="app signed-out">
         <section className="signed-out__panel" aria-labelledby="sheet-heading">
@@ -275,11 +240,11 @@ export default function App() {
                 {status}
               </p>
             )}
-            {!ready && (routeError || !sessionChecked) && (
+            {!ready && routeError && (
               <button
                 className="standard-button"
                 onClick={() =>
-                  session ? setReload((value) => value + 1) : load()
+                  setReload((value) => value + 1)
                 }
               >
                 Retry loading

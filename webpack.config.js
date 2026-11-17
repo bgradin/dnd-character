@@ -8,6 +8,7 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, 'public', 'assets'),
     filename: 'bundle.js',
+    chunkFilename: '[name].[contenthash:12].js',
     publicPath: process.env.PRODUCTION ? 'auto' : '/assets/',
     hashFunction: 'xxhash64'
   },
@@ -27,7 +28,20 @@ module.exports = {
     poll: 1000,
   },
   plugins: [
-    new MiniCssExtractPlugin(),
+    new MiniCssExtractPlugin({ chunkFilename: '[name].[contenthash:12].css' }),
+    {
+      apply(compiler) {
+        compiler.hooks.thisCompilation.tap('StartupAssets', compilation => {
+          compilation.hooks.processAssets.tap({
+            name: 'StartupAssets',
+            stage: compiler.webpack.Compilation.PROCESS_ASSETS_STAGE_SUMMARIZE,
+          }, () => {
+            const images = Object.keys(compilation.assets).filter(name => name.startsWith('../images/'));
+            compilation.emitAsset('app-assets.json', new compiler.webpack.sources.RawSource(JSON.stringify(images)));
+          });
+        });
+      },
+    },
   ],
   module: {
     rules: [
@@ -55,7 +69,7 @@ module.exports = {
         exclude: EXCLUDE_REGEX,
         type: 'asset/resource',
         generator: {
-          filename: '../images/[name][ext]'
+          filename: '../images/[name].[contenthash:12][ext]'
         }
       },
       {

@@ -24,7 +24,7 @@ function app(cached, handler, rawResponses = false, mode = 'development') {
     document: { addEventListener() {} }, navigator: { onLine: true },
     HTMLInputElement: Input, HTMLTextAreaElement: class {},
   });
-  vm.runInContext((fs.readFileSync('src/formulas.js', 'utf8') + '\n' + fs.readFileSync('src/data.js', 'utf8').replace(/^import .*;\n/, '')).replace(/export /g, '') + '\nthis.api = { request, initialize, register, save, prepareToLeave, setFormula, previewFormula, listSheets, createSheet, deleteSheet, preloadSheets };', context);
+  vm.runInContext((fs.readFileSync('src/formulas.js', 'utf8') + '\n' + fs.readFileSync('src/request.js', 'utf8') + '\n' + fs.readFileSync('src/data.js', 'utf8').replace(/^(?:import .*|export \{ request \} from .*);\n/gm, '')).replace(/export /g, '') + '\nthis.api = { request, initialize, register, save, prepareToLeave, setFormula, previewFormula, listSheets, createSheet, deleteSheet, preloadSheets };', context);
   return { api: context.api, entries, events, Input };
 }
 const user = { id: 7, firstName: 'Ada', lastName: 'Lovelace' };

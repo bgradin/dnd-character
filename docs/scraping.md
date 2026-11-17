@@ -99,6 +99,15 @@ or changed files with `cache: 'reload'`. Save the new hash only after a successf
 download. Remove cached entries absent from the manifest. Encode each path
 segment when constructing download URLs.
 
+The startup loader performs this synchronization before mounting the app. It
+stores reference responses and hashes in the `dnd-reference-data-v1` Cache API
+cache, verifies downloaded sizes and SHA-256 hashes (where Web Crypto is
+available), and falls back to memory when persistent storage is unavailable.
+Reference-data consumers should use `readReferenceData(path)` from
+`src/startupData.js` to read these cached JSON files rather than fetching them
+again. All manifest files are currently loaded; the app has no narrower reference
+data selection yet. API responses use their existing, separate caching behavior.
+
 ## Validate the tools
 
 Tests create synthetic documents and do not require source books or generated
