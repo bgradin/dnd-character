@@ -48,7 +48,7 @@ export default function FormulaTools() {
   const [selected, setSelected] = useState([]);
   function insert(token) {
     setTokens([...tokens.slice(0, cursor), token, ...tokens.slice(cursor)]);
-    setSelected(selected.map((index) => index >= cursor ? index + 1 : index));
+    setSelected(selected.map((index) => (index >= cursor ? index + 1 : index)));
     setCursor(cursor + 1);
   }
   function removeSelected() {
@@ -60,7 +60,10 @@ export default function FormulaTools() {
     const token = event.target.closest("[data-token-index]");
     if (!token) return tokens.length;
     const rect = token.getBoundingClientRect();
-    return Number(token.dataset.tokenIndex) + (event.clientX >= rect.left + rect.width / 2 ? 1 : 0);
+    return (
+      Number(token.dataset.tokenIndex) +
+      (event.clientX >= rect.left + rect.width / 2 ? 1 : 0)
+    );
   }
   function moveToken(destination) {
     if (dragged.current === null) return;
@@ -170,7 +173,9 @@ export default function FormulaTools() {
     }
   }
   const fields = sheetFields().filter(
-    (input) => (applicable(input) || (input.type === "checkbox" && isProficiencyField(input.name))) &&
+    (input) =>
+      (applicable(input) ||
+        (input.type === "checkbox" && isProficiencyField(input.name))) &&
       input.name !== (editing && editing.name),
   );
   const labels = Object.fromEntries(
@@ -235,27 +240,34 @@ export default function FormulaTools() {
                 </svg>
               </button>
             </div>
-            <p className="formula-hint" id="formula-expression-help">
-              Click items to select them. Click between items to place the cursor,
-              or drag items to reorder them. New items are added at the cursor.
-              Proficiency fields use 1 when checked and 0 when unchecked.
-              Use min or max with two or more values separated by commas.
-              Use ceil or floor with one value to round up or down to an integer.
-            </p>
             <div
               className="formula-expression"
               aria-label="Formula expression"
               aria-describedby="formula-expression-help"
               tabIndex="0"
               onClick={(event) => {
-                if (event.target === event.currentTarget) setCursor(tokens.length);
+                if (event.target === event.currentTarget)
+                  setCursor(tokens.length);
               }}
               onKeyDown={(event) => {
                 if (event.target !== event.currentTarget) return;
-                if (["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) {
+                if (
+                  ["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)
+                ) {
                   event.preventDefault();
-                  setCursor(event.key === "Home" ? 0 : event.key === "End" ? tokens.length :
-                    Math.max(0, Math.min(tokens.length, cursor + (event.key === "ArrowLeft" ? -1 : 1))));
+                  setCursor(
+                    event.key === "Home"
+                      ? 0
+                      : event.key === "End"
+                        ? tokens.length
+                        : Math.max(
+                            0,
+                            Math.min(
+                              tokens.length,
+                              cursor + (event.key === "ArrowLeft" ? -1 : 1),
+                            ),
+                          ),
+                  );
                 }
               }}
               onDragOver={(event) => {
@@ -300,19 +312,31 @@ export default function FormulaTools() {
                         event.dataTransfer.effectAllowed = "move";
                         event.dataTransfer.setData("text/plain", String(index));
                       }}
-                      onDragEnd={() => { dragged.current = null; }}
-                      onClick={() => setSelected(selected.includes(index)
-                        ? selected.filter((item) => item !== index) : [...selected, index])}
+                      onDragEnd={() => {
+                        dragged.current = null;
+                      }}
+                      onClick={() =>
+                        setSelected(
+                          selected.includes(index)
+                            ? selected.filter((item) => item !== index)
+                            : [...selected, index],
+                        )
+                      }
                       aria-pressed={selected.includes(index)}
                     >
                       {typeof tokens[index] === "object"
                         ? labels[tokens[index].field] || tokens[index].field
-                        : { "*": "×", "/": "÷", "-": "−" }[tokens[index]] || tokens[index]}
+                        : { "*": "×", "/": "÷", "-": "−" }[tokens[index]] ||
+                          tokens[index]}
                     </button>
                   )}
                 </React.Fragment>
               ))}
-              {!tokens.length && <span className="formula-placeholder">Add numbers or fields below…</span>}
+              {!tokens.length && (
+                <span className="formula-placeholder">
+                  Add numbers or fields below…
+                </span>
+              )}
             </div>
             <div className="formula-inserters">
               <div className="formula-builder-row">
@@ -398,7 +422,9 @@ export default function FormulaTools() {
                 onClick={() => {
                   setTokens(tokens.slice(0, -1));
                   setCursor(Math.min(cursor, tokens.length - 1));
-                  setSelected(selected.filter((index) => index < tokens.length - 1));
+                  setSelected(
+                    selected.filter((index) => index < tokens.length - 1),
+                  );
                 }}
               >
                 Undo
