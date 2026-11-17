@@ -2,6 +2,41 @@
 export const DATA_CACHE = 'dnd-reference-data-v1';
 const memory = new Map();
 const formulaDocuments = new Map();
+export function referenceChoices(collection) {
+  const names = new Set();
+  for (const document of formulaDocuments.values()) {
+    for (const entry of document[collection] || []) {
+      names.add(entry.name);
+      if (collection === 'races') {
+        for (const subrace of entry.subraces || []) names.add(subrace.name);
+      }
+    }
+  }
+  return [...names].sort((a, b) => a.localeCompare(b));
+}
+export function referenceChoiceDetails(collection, name, subclass) {
+  const enums = {};
+  for (const document of formulaDocuments.values()) Object.assign(enums, document.enums);
+  for (const document of formulaDocuments.values()) {
+    for (const entry of document[collection] || []) {
+      if (entry.name === name) {
+        if (subclass) {
+          if (!(entry.subclasses || []).includes(subclass)) return null;
+          return { entry: { name: subclass, class: name,
+            features: (entry.features || []).filter(feature => feature.subclass === subclass),
+            notes: (entry.notes || []).filter(note => note.subclass === subclass),
+          }, source: document.source, enums };
+        }
+        return { entry, source: document.source, enums };
+      }
+      if (collection === 'races') {
+        const subrace = (entry.subraces || []).find(item => item.name === name);
+        if (subrace) return { entry: subrace, parent: entry, source: document.source, enums };
+      }
+    }
+  }
+  return null;
+}
 export const referenceFormulaFields = [
   { name: 'race.baseWalkingSpeed', label: 'Walking speed' },
   { name: 'class.hitPointsAtFirstLevel', label: 'Class hit points at first level' },

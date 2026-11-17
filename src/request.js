@@ -1,5 +1,11 @@
 export async function request(path, options = {}) {
-  const apiOrigin = process.env.NODE_ENV === 'production' ? 'https://www.gradinware.com' : '';
+  const location = window.location;
+  const local = location && ['localhost', '127.0.0.1', '[::1]'].includes(location.hostname);
+  // The dev server forwards /api to localhost:5000. Keep browser requests
+  // on port 3000 so the backend does not need cross-origin preflight support.
+  const apiOrigin = local
+    ? location.port === '3000' ? '' : `${location.protocol}//${location.hostname}:5000`
+    : process.env.NODE_ENV === 'production' ? 'https://www.gradinware.com' : '';
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 10000);
   try {

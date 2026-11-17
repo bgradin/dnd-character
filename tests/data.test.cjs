@@ -3,7 +3,7 @@ const assert = require('node:assert/strict');
 const vm = require('node:vm');
 const fs = require('node:fs');
 
-function app(cached, handler, rawResponses = false, mode = 'development') {
+function app(cached, handler, rawResponses = false, mode = 'development', location) {
   const entries = new Map(cached ? [['dnd-character:v1:7', JSON.stringify(cached)]] : []);
   const events = {};
   class Input {
@@ -20,11 +20,11 @@ function app(cached, handler, rawResponses = false, mode = 'development') {
     } }),
     AbortController, setTimeout: () => 1, clearTimeout() {}, URL,
     localStorage: { getItem: key => entries.get(key) || null, setItem: (key, value) => entries.set(key, value), removeItem: key => entries.delete(key) },
-    window: { addEventListener: (name, cb) => events[name] = cb, confirm: () => false },
+    window: { location, addEventListener: (name, cb) => events[name] = cb, confirm: () => false },
     document: { addEventListener() {} }, navigator: { onLine: true },
     HTMLInputElement: Input, HTMLTextAreaElement: class {},
   });
-  vm.runInContext((fs.readFileSync('src/startupData.js', 'utf8') + '\n' + fs.readFileSync('src/formulas.js', 'utf8') + '\n' + fs.readFileSync('src/request.js', 'utf8') + '\n' + fs.readFileSync('src/data.js', 'utf8').replace(/^(?:import .*|export \{ request \} from .*);\n/gm, '')).replace(/export /g, '') + '\nthis.api = { request, initialize, register, save, prepareToLeave, setFormula, previewFormula, listSheets, createSheet, deleteSheet, preloadSheets };', context);
+  vm.runInContext((fs.readFileSync('src/startupData.js', 'utf8') + '\n' + fs.readFileSync('src/formulas.js', 'utf8') + '\n' + fs.readFileSync('src/request.js', 'utf8') + '\n' + fs.readFileSync('src/data.js', 'utf8').replace(/^(?:import .*|export \{ request \} from .*);\n/gm, '')).replace(/export /g, '') + '\nthis.api = { request, initialize, register, save, prepareToLeave, setFormula, previewFormula, listSheets, createSheet, deleteSheet, preloadSheets, setClassChoice };', context);
   return { api: context.api, entries, events, Input, loadReferences: docs => vm.runInContext(`formulaDocuments.set("test", ${JSON.stringify(docs)})`, context) };
 }
 const user = { id: 7, firstName: 'Ada', lastName: 'Lovelace' };
@@ -37,6 +37,36 @@ test('production API calls use the www domain and include session cookies', asyn
     const [url, options] = calls.at(-1);
     assert.equal(url, `https://www.gradinware.com${path}`);
     assert.equal(options.credentials, 'include');
+  }
+});
+
+test('local API calls use port 5000 regardless of build mode', async () => {
+  for (const mode of ['development', 'production']) {
+    for (const hostname of ['localhost', '127.0.0.1', '[::1]']) {
+      const calls = [];
+      const env = app(null, (url, options) => { calls.push([url, options]); return {}; }, true, mode,
+        { hostname, protocol: 'http:' });
+      for (const path of ['/api/v1/site/session', '/api/v1/site/logout', '/api/dnd/v1', '/api/dnd/v1/hero%2Fid']) {
+        await env.api.request(path);
+        const [url, options] = calls.at(-1);
+        assert.equal(url, `http://${hostname}:5000${path}`);
+        assert.equal(options.credentials, 'include');
+      }
+    }
+  }
+});
+
+test('localhost dev server API calls use its backend proxy in either build mode', async () => {
+  for (const mode of ['development', 'production']) {
+    const calls = [];
+    const env = app(null, (url, options) => { calls.push([url, options]); return {}; }, true, mode,
+      { hostname: 'localhost', protocol: 'http:', port: '3000' });
+    for (const path of ['/api/v1/site/session', '/api/v1/site/logout', '/api/dnd/v1', '/api/dnd/v1/hero%2Fid']) {
+      await env.api.request(path);
+      const [url, options] = calls.at(-1);
+      assert.equal(url, path);
+      assert.equal(options.credentials, 'include');
+    }
   }
 });
 
@@ -615,4 +645,39 @@ test('combat defaults preserve manual zeroes and custom formulas', async () => {
   assert.equal(speed.value, '0');
   assert.equal(speed.readOnly, false);
   assert.equal(hp.value, '42');
+});
+
+
+test('class and subclass save together, restore without a migration, and keep class formulas working', async () => {
+  const writes = [];
+  const env = app(null, (_, options) => {
+    if (options.method) {
+      writes.push(JSON.parse(options.body));
+      return { revision: writes.length + 1 };
+    }
+    return { schemaVersion: 1, revision: 1, data: { class: 'Wizard', subclass: 'School of Evocation' } };
+  });
+  await env.api.initialize(() => {}, user);
+  env.loadReferences({ classes: [{ name: 'Barbarian', hitPointsAtFirstLevel: { base: 12 } }] });
+  const classInput = new env.Input('class'), subclassInput = new env.Input('subclass');
+  env.api.register(classInput); env.api.register(subclassInput);
+  assert.equal(classInput.value, 'Wizard');
+  assert.equal(subclassInput.value, 'School of Evocation');
+  env.api.setClassChoice('Barbarian', 'Path of the Berserker');
+  assert.equal(classInput.value, 'Barbarian');
+  assert.equal(subclassInput.value, 'Path of the Berserker');
+  assert.equal(env.api.previewFormula('test', [{ field: 'class.hitPointsAtFirstLevel' }]), 12);
+  await env.api.save();
+  assert.equal(writes.at(-1).schemaVersion, 1);
+  assert.equal(writes.at(-1).data.class, 'Barbarian');
+  assert.equal(writes.at(-1).data.subclass, 'Path of the Berserker');
+  env.api.setClassChoice('Barbarian');
+  await env.api.save();
+  assert.equal(writes.at(-1).data.subclass, '');
+  assert.equal(subclassInput.value, '');
+  env.api.setClassChoice('Wizard', 'School of Evocation');
+  env.api.setClassChoice('Fighter');
+  await env.api.save();
+  assert.equal(writes.at(-1).data.class, 'Fighter');
+  assert.equal(writes.at(-1).data.subclass, '');
 });

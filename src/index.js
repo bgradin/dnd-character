@@ -18,9 +18,15 @@ async function loadAssets() {
   async function worker() {
     while (cursor < assets.length) {
       const path = assets[cursor++];
-      const response = await fetch(new URL(path, base), { cache: 'force-cache' });
-      if (!response.ok) throw new Error('Unable to load application artwork. Reload to try again.');
-      await response.arrayBuffer();
+      // Load through the image pipeline used by CSS backgrounds and <img>,
+      // and finish decoding before allowing React to reveal the sheet.
+      const image = new Image();
+      await new Promise((resolve, reject) => {
+        image.onload = resolve;
+        image.onerror = () => reject(new Error('Unable to load application artwork. Reload to try again.'));
+        image.src = new URL(path, base).href;
+      });
+      if (image.decode) await image.decode();
       progress('assets', ++completed / assets.length);
     }
   }
@@ -42,8 +48,10 @@ async function start() {
   if (document.fonts) {
     await Promise.all([
       document.fonts.load('600 32px Cinzel'),
+      document.fonts.load('700 32px Cinzel'),
       document.fonts.load('300 32px "Open Sans Condensed"'),
     ]);
+    await document.fonts.ready;
   }
   const params = new URLSearchParams(window.location.search);
   params.delete('action');

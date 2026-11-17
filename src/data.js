@@ -321,7 +321,7 @@ function refreshFormulas() {
   fields.forEach((input, name) => {
     if (input.isConnected === false) return;
     const active = input.type !== 'checkbox' && Boolean(fieldFormula(name));
-    input.readOnly = active;
+    input.readOnly = active || input.dataset?.hyperlinkChoice === 'true';
     if (input.classList) input.classList.toggle('formula-active', active);
     if (!active) return;
     try {
@@ -351,6 +351,15 @@ export function setFormula(name, tokens) {
   data.formulas = { ...data.formulas };
   if (tokens) data.formulas[name] = tokens;
   else delete data.formulas[name];
+  changed();
+}
+export function setClassChoice(className, subclass = '') {
+  data.class = className;
+  data.subclass = subclass;
+  for (const name of ['class', 'subclass']) {
+    const input = fields.get(name);
+    if (input) input.value = data[name];
+  }
   changed();
 }
 export function register(input) {

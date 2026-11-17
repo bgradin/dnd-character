@@ -3,19 +3,19 @@ const assert = require('node:assert/strict');
 const vm = require('node:vm');
 const fs = require('node:fs');
 
-async function startup({ user = null, sessionError, dataError, hash = '#/sheets/hero' } = {}) {
+async function startup({ user = null, sessionError, dataError, hash = '#/sheets/hero', assets = [], Image, fonts } = {}) {
   const replacements = [];
   const mounted = [];
   const bar = { value: 0 };
   const error = { hidden: true };
   const context = vm.createContext({
-    URL, URLSearchParams,
-    document: { baseURI: 'https://example.com/', getElementById: id => id === 'startup-progress' ? bar : error },
+    URL, URLSearchParams, Image,
+    document: { fonts, baseURI: 'https://example.com/', getElementById: id => id === 'startup-progress' ? bar : error },
     window: { location: { pathname: '/characters', search: '?action=login&test=1', hash },
       history: { replaceState: (...args) => replacements.push(args[2]) } },
     request: async () => { if (sessionError) throw sessionError; return { user }; },
     synchronizeData: async progress => { if (dataError) throw dataError; progress(1); },
-    fetch: async () => ({ ok: true, json: async () => [] }),
+    fetch: async () => ({ ok: true, json: async () => assets }),
     loadApp: async () => ({ prepare: async user => user ? ['sheet'] : [], mount: (...args) => mounted.push(args) }),
   });
   const source = fs.readFileSync('src/index.js', 'utf8')
@@ -73,4 +73,60 @@ test('startup waits for both authentication and data before mounting', async () 
   finishData();
   await new Promise(setImmediate);
   assert.equal(mounted.length, 1);
+});
+
+
+test('startup waits for artwork load and decoding before revealing the app', async () => {
+  let image, finishDecode;
+  const decoding = new Promise(resolve => { finishDecode = resolve; });
+  const env = await startup({
+    assets: ['../images/frame.svg'],
+    Image: class {
+      constructor() { image = this; }
+      decode() { return decoding; }
+    },
+  });
+  assert.equal(image.src, 'https://example.com/images/frame.svg');
+  assert.equal(env.mounted.length, 0);
+  assert.ok(env.bar.value < 1);
+  image.onload();
+  await new Promise(setImmediate);
+  assert.equal(env.mounted.length, 0);
+  finishDecode();
+  await new Promise(setImmediate);
+  assert.equal(env.mounted.length, 1);
+  assert.equal(env.bar.value, 1);
+});
+
+test('artwork loading and decoding failures keep the loader visible', async () => {
+  for (const failDecode of [false, true]) {
+    let image;
+    const env = await startup({
+      assets: ['../images/frame.svg'],
+      Image: class {
+        constructor() { image = this; }
+        async decode() { throw new Error('Artwork decode failed'); }
+      },
+    });
+    if (failDecode) image.onload();
+    else image.onerror();
+    await new Promise(setImmediate);
+    assert.equal(env.mounted.length, 0);
+    assert.equal(env.error.hidden, false);
+    assert.ok(env.bar.value < 1);
+  }
+});
+
+test('startup waits for font faces and font layout readiness', async () => {
+  const loaded = [];
+  let finishFonts;
+  const env = await startup({ fonts: {
+    load: async face => { loaded.push(face); },
+    ready: new Promise(resolve => { finishFonts = resolve; }),
+  } });
+  assert.deepEqual(loaded, ['600 32px Cinzel', '700 32px Cinzel', '300 32px "Open Sans Condensed"']);
+  assert.equal(env.mounted.length, 0);
+  finishFonts();
+  await new Promise(setImmediate);
+  assert.equal(env.mounted.length, 1);
 });

@@ -33,7 +33,7 @@ function setup({ storageUnavailable = false, quotaExceeded = false, corrupt = fa
       return fail ? new Response('', { status: 503 }) : new Response(corrupt ? '{"name":"wrong"}' : files[decodeURIComponent(url.split('/data/')[1])]);
     },
   });
-  vm.runInContext(fs.readFileSync('src/startupData.js', 'utf8').replace(/export /g, '') + '\nthis.api = { synchronizeData, readReferenceData, referenceFormulaValue };', context);
+  vm.runInContext(fs.readFileSync('src/startupData.js', 'utf8').replace(/export /g, '') + '\nthis.api = { synchronizeData, readReferenceData, referenceFormulaValue, referenceChoices, referenceChoiceDetails };', context);
   return { ...context.api, stored, calls, setFiles: value => { files = value; }, fail: () => { fail = true; } };
 }
 
@@ -102,4 +102,64 @@ test('formula reference values include every loaded file and remove stale source
   env.setFiles({});
   await env.synchronizeData(() => {});
   assert.equal(env.referenceFormulaValue('race.baseWalkingSpeed', selected), 0);
+});
+
+
+test('choice fields use sorted reference names, include subraces, and discard removed data', async () => {
+  const env = setup();
+  env.setFiles({ 'choices.json': JSON.stringify({
+    classes: [{ name: 'Wizard' }, { name: 'Bard' }],
+    races: [{ name: 'Elf', subraces: [{ name: 'High Elf' }] }],
+  }), 'extra.json': JSON.stringify({ classes: [{ name: 'Bard' }] }) });
+  await env.synchronizeData(() => {});
+  assert.deepEqual(Array.from(env.referenceChoices('classes')), ['Bard', 'Wizard']);
+  assert.deepEqual(Array.from(env.referenceChoices('races')), ['Elf', 'High Elf']);
+  env.setFiles({});
+  await env.synchronizeData(() => {});
+  assert.equal(env.referenceChoices('classes').length, 0);
+});
+
+
+test('choice details preserve class features, source, enum labels and inherited race traits', async () => {
+  const env = setup();
+  const source = { name: "Player's Handbook" };
+  env.setFiles({
+    'enums.json': JSON.stringify({ enums: { ability: { 2: 'Constitution' } } }),
+    'book.json': JSON.stringify({ source,
+      classes: [{ name: 'Wizard', hitDice: '1d6', features: [{ name: 'Spellcasting', description: '<p>Cast spells.</p>' }] }],
+      races: [{ name: 'Elf', baseWalkingSpeed: 30, traits: [{ name: 'Darkvision' }], subraces: [{ name: 'High Elf', traits: [{ name: 'Cantrip' }] }] }],
+    }),
+  });
+  await env.synchronizeData(() => {});
+  const wizard = env.referenceChoiceDetails('classes', 'Wizard');
+  assert.equal(wizard.entry.features[0].description, '<p>Cast spells.</p>');
+  assert.equal(wizard.source.name, source.name);
+  assert.equal(wizard.enums.ability[2], 'Constitution');
+  const elf = env.referenceChoiceDetails('races', 'High Elf');
+  assert.equal(elf.parent.baseWalkingSpeed, 30);
+  assert.equal(elf.parent.traits[0].name, 'Darkvision');
+  assert.equal(elf.entry.traits[0].name, 'Cantrip');
+  assert.equal(env.referenceChoiceDetails('classes', 'Missing'), null);
+  env.setFiles({});
+  await env.synchronizeData(() => {});
+  assert.equal(env.referenceChoiceDetails('classes', 'Wizard'), null);
+});
+
+
+test('subclass details include only that subclass features and notes', async () => {
+  const env = setup();
+  env.setFiles({ 'classes.json': JSON.stringify({ classes: [{ name: 'Wizard',
+    subclasses: ['School of Evocation', 'School of Illusion'],
+    features: [{ name: 'Spellcasting', subclass: null },
+      { name: 'Sculpt Spells', subclass: 'School of Evocation' },
+      { name: 'Improved Minor Illusion', subclass: 'School of Illusion' }],
+    notes: [{ name: 'Evocation note', subclass: 'School of Evocation' }],
+  }] }) });
+  await env.synchronizeData(() => {});
+  const details = env.referenceChoiceDetails('classes', 'Wizard', 'School of Evocation');
+  assert.equal(details.entry.name, 'School of Evocation');
+  assert.equal(details.entry.class, 'Wizard');
+  assert.deepEqual(Array.from(details.entry.features, feature => feature.name), ['Sculpt Spells']);
+  assert.equal(details.entry.notes[0].name, 'Evocation note');
+  assert.equal(env.referenceChoiceDetails('classes', 'Wizard', 'Missing'), null);
 });

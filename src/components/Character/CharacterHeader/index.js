@@ -1,4 +1,6 @@
 import React from 'react'
+import HyperlinkChoiceField from '../../ui/HyperlinkChoiceField';
+import { referenceChoices } from '../../../startupData';
 import { register } from "../../../data";
 
 import './CharacterHeader.scss';
@@ -24,79 +26,40 @@ export default function CharacterHeader() {
                         <div className="character-header__info-row">
                             <div className="form-row">
                                 <div className="form-input-wrap">
-                                    <input
-                                        id="class"
-                                        name="class"
-                                        type="text"
-                                        className="form-input"
-                                        ref={(input) => register(input)}
-                                    />
-                                    <label htmlFor="class" className="form-input-label">Class</label>
-                                </div>
-                                <div className="form-input-wrap">
-                                    <input
-                                        id="level"
-                                        name="level"
-                                        type="text"
-                                        inputMode="numeric"
-                                        className="form-input"
-                                        ref={(input) => register(input)}
-                                    />
+                                    <input id="level" name="level" type="text" inputMode="numeric" className="form-input" ref={input => register(input)} />
                                     <label htmlFor="level" className="form-input-label">Level</label>
                                 </div>
                                 <div className="form-input-wrap">
-                                    <input
-                                        id="background"
-                                        name="background"
-                                        type="text"
-                                        className="form-input"
-                                        ref={(input) => register(input)}
-                                    />
-                                    <label htmlFor="background" className="form-input-label">Background</label>
+                                    <HyperlinkChoiceField name="race" label="Race" collection="races" choices={referenceChoices('races')} />
+                                    <label htmlFor="race" className="form-input-label">Race</label>
                                 </div>
                                 <div className="form-input-wrap">
-                                    <input
-                                        id="playerName"
-                                        name="playerName"
-                                        type="text"
-                                        className="form-input"
-                                        ref={(input) => register(input)}
-                                    />
-                                    <label htmlFor="playerName" className="form-input-label">Player Name</label>
+                                    <HyperlinkChoiceField name="class" label="Class" collection="classes" choices={referenceChoices('classes')} />
+                                    <label htmlFor="class" className="form-input-label">Class</label>
+                                </div>
+                                <div className="form-input-wrap">
+                                    <HyperlinkChoiceField name="subclass" label="Subclass" collection="subclasses" />
+                                    <label htmlFor="subclass" className="form-input-label">Subclass</label>
                                 </div>
                             </div>
                         </div>
                         <div className="character-header__info-row">
                             <div className="form-row">
                                 <div className="form-input-wrap">
-                                    <input
-                                        id="race"
-                                        name="race"
-                                        type="text"
-                                        className="form-input"
-                                        ref={(input) => register(input)}
-                                    />
-                                    <label htmlFor="race" className="form-input-label">Race</label>
+                                    <input id="background" name="background" type="text" className="form-input" ref={input => register(input)} />
+                                    <label htmlFor="background" className="form-input-label">Background</label>
                                 </div>
                                 <div className="form-input-wrap">
-                                    <input
-                                        id="alignment"
-                                        name="alignment"
-                                        type="text"
-                                        className="form-input"
-                                        ref={(input) => register(input)}
-                                    />
+                                    <input id="alignment" name="alignment" type="text" className="form-input" ref={input => register(input)} />
                                     <label htmlFor="alignment" className="form-input-label">Alignment</label>
                                 </div>
                                 <div className="form-input-wrap">
-                                    <input
-                                        id="experiencePoints"
-                                        name="experiencePoints"
-                                        type="text"
-                                        className="form-input"
-                                        ref={(input) => register(input)}
-                                    />
+                                    <input id="experiencePoints" name="experiencePoints" type="text" className="form-input" ref={input => register(input)} />
                                     <label htmlFor="experiencePoints" className="form-input-label">Experience Points</label>
+                                </div>
+                                <div className="form-input-wrap">
+                                    <input id="playerName" name="playerName" type="text" className="form-input" ref={input => register(input)} />
+                                    <label htmlFor="playerName" className="form-input-label">Player Name</label>
                                 </div>
                             </div>
                         </div>
