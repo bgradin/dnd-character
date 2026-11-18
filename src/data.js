@@ -326,6 +326,11 @@ const listeners = new Set();
 export const subscribeFields = callback => { listeners.add(callback); return () => listeners.delete(callback); };
 export const sheetFields = () => Array.from(fields.values()).filter(input => input.isConnected !== false);
 export const fieldFormula = name => (data.formulas || {})[name];
+export const equipmentEntries = () => data.equipmentItems || [];
+export function setEquipmentEntries(entries) {
+  data.equipmentItems = entries;
+  changed();
+}
 export const attackEntries = () => data.attacksSpellcasting || [];
 export function setAttackEntries(entries) {
   data.attacksSpellcasting = entries;

@@ -24,7 +24,7 @@ function app(cached, handler, rawResponses = false, mode = 'development', locati
     document: { addEventListener() {} }, navigator: { onLine: true },
     HTMLInputElement: Input, HTMLTextAreaElement: class {},
   });
-  vm.runInContext((fs.readFileSync('src/startupData.js', 'utf8') + '\n' + fs.readFileSync('src/formulas.js', 'utf8') + '\n' + fs.readFileSync('src/request.js', 'utf8') + '\n' + fs.readFileSync('src/data.js', 'utf8').replace(/^(?:import .*|export \{ request \} from .*);\n/gm, '')).replace(/export /g, '') + '\nthis.api = { request, initialize, register, save, prepareToLeave, setFormula, previewFormula, listSheets, createSheet, deleteSheet, preloadSheets, setClassChoice, attackEntries, setAttackEntries, migrateSheetData };', context);
+  vm.runInContext((fs.readFileSync('src/startupData.js', 'utf8') + '\n' + fs.readFileSync('src/formulas.js', 'utf8') + '\n' + fs.readFileSync('src/request.js', 'utf8') + '\n' + fs.readFileSync('src/data.js', 'utf8').replace(/^(?:import .*|export \{ request \} from .*);\n/gm, '')).replace(/export /g, '') + '\nthis.api = { request, initialize, register, save, prepareToLeave, setFormula, previewFormula, listSheets, createSheet, deleteSheet, preloadSheets, setClassChoice, attackEntries, setAttackEntries, equipmentEntries, setEquipmentEntries, migrateSheetData };', context);
   return { api: context.api, entries, events, Input, loadReferences: docs => vm.runInContext(`formulaDocuments.set("test", ${JSON.stringify(docs)})`, context) };
 }
 const user = { id: 7, firstName: 'Ada', lastName: 'Lovelace' };
@@ -779,4 +779,60 @@ test('unsupported schema versions preserve recovery copies and never upload', as
   const remote = app(null, () => ({ schemaVersion: 3, revision: 1, data: {} }));
   await assert.rejects(remote.api.initialize(() => {}, user), /newer application/);
   assert.equal(remote.entries.size, 0);
+});
+
+test('death save success and failure persist through the existing sheet data envelope', async () => {
+  let document = { schemaVersion: 2, revision: 1, data: { playerName: 'Ada', deathSaves: 'Legacy notes' } };
+  const handler = (_, options) => {
+    if (options.method === 'PUT') {
+      const payload = JSON.parse(options.body);
+      assert.equal(payload.schemaVersion, 2);
+      assert.equal(payload.data.deathSavesSuccess, '2');
+      assert.equal(payload.data.deathSavesFailure, '1');
+      assert.equal(payload.data.deathSaves, 'Legacy notes');
+      document = { ...payload, revision: 2 };
+      return document;
+    }
+    return document;
+  };
+  const env = app(null, handler);
+  await env.api.initialize(() => {}, user);
+  for (const [name, value] of [['deathSavesSuccess', '2'], ['deathSavesFailure', '1']]) {
+    const input = new env.Input(name);
+    env.api.register(input);
+    assert.equal(input.value, '');
+    input.value = value;
+    input.edit();
+  }
+  await env.api.save();
+  const cached = JSON.parse(env.entries.get('dnd-character:v1:7'));
+  assert.equal(cached.data.deathSavesSuccess, '2');
+  assert.equal(cached.data.deathSavesFailure, '1');
+  const reopened = app(null, handler);
+  await reopened.api.initialize(() => {}, user);
+  for (const [name, expected] of [['deathSavesSuccess', '2'], ['deathSavesFailure', '1']]) {
+    const input = new reopened.Input(name);
+    reopened.api.register(input);
+    assert.equal(input.value, expected);
+  }
+});
+
+
+test('equipment entries persist independently of notes, currency, and attacks', async () => {
+  const writes = [];
+  const env = app(null, (url, options) => {
+    if (options.method === 'PUT') { writes.push(JSON.parse(options.body)); return { revision: 2 }; }
+    return { schemaVersion: 2, revision: 1, data: { equipment: 'Family heirloom', gp: '25', attacksSpellcasting: [] } };
+  });
+  await env.api.initialize(() => {}, user);
+  const entries = [{ id: 'gear-1', collection: 'gear', name: 'Rope' }, { id: 'custom-1', collection: 'gear', custom: true, name: 'Keepsake', description: 'Engraved' }];
+  env.api.setEquipmentEntries(entries);
+  await env.api.save();
+  assert.equal(writes.at(-1).data.equipmentItems.length, 2);
+  assert.equal(writes.at(-1).data.equipment, 'Family heirloom');
+  assert.equal(writes.at(-1).data.gp, '25');
+  assert.equal(env.api.attackEntries().length, 0);
+  env.api.setEquipmentEntries(entries.slice(1));
+  await env.api.save();
+  assert.equal(writes.at(-1).data.equipmentItems[0].name, 'Keepsake');
 });

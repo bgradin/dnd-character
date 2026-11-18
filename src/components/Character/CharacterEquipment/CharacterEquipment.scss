@@ -1,60 +1,14 @@
 @use "../../../scss/base/variables" as *;
 
-.character-equipment {
-    position: relative;
-    width: 100%;
-    margin-bottom: 15px;
-    background-image: url('../../../img/equipmentMiddle.svg');
-    background-repeat: repeat-y;
-    background-size: contain;
-    
-    > * {
-        position: relative;
-        z-index: 20;
-    }
-
-    > .content {
-        display: flex;
-        flex-direction: column;
-        padding: 20px;
-    }
-
-    &::before {
-        content: "";
-        position: absolute;
-        display: block;
-        width: 100%;
-        padding-top: 7.5%;
-        background-color: white;
-        background-image: url('../../../img/equipmentTop.svg');
-        background-repeat: no-repeat;
-        background-size: contain;
-        background-position: bottom;
-    }
-
-    &::after {
-        content: "";
-        position: absolute;
-        bottom: 0;
-        display: block;
-        width: 100%;
-        padding-top: 7.5%;
-        background-color: white;
-        background-image: url('../../../img/equipmentBottom.svg');
-        background-repeat: no-repeat;
-        background-size: contain;
-        z-index: 10;
-    }
-
-    .money-background {
-        background-image: url('../../../img/equipmentGold.svg');
-    }
-}
+.character-equipment { width: 100%; min-width: 0; margin-bottom: 8px; }
+.equipment-list-content { flex: 1; min-width: 0; }
+.equipment-gold-label { display: block; margin-top: 8px; text-align: center; font-size: 12px; }
 .character-equipment-wrap {
     display: flex;
 }
 .character-equipment__stats {
-    width: 100px;
+    width: 90px;
+    flex: 0 0 90px;
     margin-right: 12px;
 }
 .character-equipment__stats-item {
@@ -69,22 +23,13 @@
 }
 .character-equipment__stats-item-input {
     display: block;
-    width: 100%;
+    width: 0;
+    min-width: 0;
+    flex: 1;
     padding: 6px 0;
     margin: 4px 0 3px 8px;
     border: none;
     border-bottom: 1px solid $grey;
     background: $grey-light;
     text-align: center;
-}
-.character-equipment__textarea {
-    flex: 1;
-    margin-bottom: 8px;
-
-    textarea {
-        width: 100%;
-        border: none;
-        background: $grey-light;
-        resize: none;
-    }
 }

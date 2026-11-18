@@ -6,9 +6,6 @@
   --ink: #252d26;
   --formula: #356e82;
 }
-html {
-  scrollbar-gutter: stable;
-}
 html,
 body {
   margin: 0;
@@ -100,10 +97,8 @@ body {
 .character-combat-stats__armor,
 .character-combat-stats__initiative,
 .character-combat-stats__speed,
-.character-combat-stats__hitpoints-current,
-.character-combat-stats__hitpoints-temp,
 .character-combat-stats__hit,
-.character-combat-stats__death-saves {
+.character-combat-stats__hitpoints {
   @include fieldset-frame;
   &::before,
   &::after {
@@ -481,18 +476,12 @@ textarea.formula-active {
 .character-combat-stats__initiative,
 .character-combat-stats__speed,
 .character-combat-stats__hit,
-.character-combat-stats__death-saves {
+.character-combat-stats__hitpoints {
   margin: 0;
 }
 .character-combat-stats__hit,
-.character-combat-stats__death-saves {
-  width: calc((100% - var(--fieldset-gap)) / 2);
-}
 .character-combat-stats__hitpoints {
-  display: flex;
-  flex-direction: column;
-  gap: var(--fieldset-gap);
-  margin-bottom: var(--fieldset-gap);
+  width: calc((100% - var(--fieldset-gap)) / 2);
 }
 @media (min-width: 768px) {
   .character-header__name {
@@ -697,7 +686,6 @@ textarea.formula-active {
   min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
-  scrollbar-gutter: stable;
   padding: 4px;
 }
 .choice-page-navigation {

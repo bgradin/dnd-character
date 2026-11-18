@@ -8,8 +8,16 @@
 .attack-list-content { padding: 16px; }
 .attack-list-title { margin: 0 0 12px; font-size: 16px; text-align: center; }
 .attack-list { list-style: none; margin: 0; padding: 0; }
-.attack-list > li { padding: 12px 0; border-bottom: 1px solid $grey; }
-.attack-list-heading { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }
+.attack-list > li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: auto 1fr;
+  column-gap: 12px;
+  align-content: start;
+  padding: 12px 0;
+  border-bottom: 1px solid $grey;
+}
+.attack-list-heading { grid-column: 1; grid-row: 1; min-width: 0; overflow-wrap: anywhere; }
 .attack-link {
   border: 0;
   padding: 0;
@@ -22,6 +30,10 @@
 }
 .attack-list-heading > :first-child { font-weight: bold; }
 .attack-list-stats {
+  grid-column: 1;
+  grid-row: 2;
+  align-self: start;
+  min-width: 0;
   display: flex;
   flex-wrap: wrap;
   gap: 8px 20px;
@@ -44,6 +56,34 @@
   flex-wrap: wrap;
   gap: 12px;
   padding: 8px 0;
+  align-items: flex-end;
   label { display: flex; flex-direction: column; gap: 4px; }
   input, select { padding: 8px; max-width: 100%; }
 }
+
+.attack-custom-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
+  gap: 12px;
+  padding: 8px 0;
+  label { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  input, select, textarea { padding: 8px; width: 100%; box-sizing: border-box; font: inherit; }
+  textarea { resize: vertical; }
+  label:last-of-type, .attack-custom-submit { grid-column: 1 / -1; }
+}
+.attack-custom-submit { display: flex; justify-content: flex-end; }
+
+.attack-list-actions { grid-column: 2; grid-row: 1 / span 2; align-self: start; display: flex; flex-direction: column; align-items: center; gap: 8px; flex-shrink: 0; }
+.attack-drag-handle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: grab;
+  &:active { cursor: grabbing; }
+  &:focus-visible { outline: 2px solid $hyperlink-color; outline-offset: 2px; }
+}
+.attack-list > .attack-drop-target { outline: 2px dashed $hyperlink-color; outline-offset: -2px; }

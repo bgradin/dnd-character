@@ -38,16 +38,11 @@ export default function CharacterCombatStats() {
                     <label htmlFor="speed">Speed</label>
                 </div>
             </div>
-            <div className="character-combat-stats__hitpoints">
-                <div className="character-combat-stats__hitpoints-current">
+            <div className="character-combat-stats-row">
+                <div className="character-combat-stats__hitpoints">
                     <div className="content">
-                        <div className="character-combat-stats__hitpoints-current-wrap">
-                            <label
-                                className="character-combat-stats__hitpoints-current-text"
-                                htmlFor="hitpointsMax"
-                            >
-                                Hit Point Maximum
-                            </label>
+                        <div className="flex character-combat-stats__field">
+                            <label className="form-input-underline-label" htmlFor="hitpointsMax">Maximum</label>
                             <input
                                 className="form-input-underline"
                                 type="text"
@@ -56,45 +51,32 @@ export default function CharacterCombatStats() {
                                 ref={(input) => register(input)}
                             />
                         </div>
-                        <textarea
-                            className="character-combat-stats__hitpoints-current-textarea"
-                            name="hitpointsMaxText"
-                            id="hitpointsMaxText"
-                            cols="30"
-                            rows="3"
-                            ref={(input) => register(input)}
-                        ></textarea>
-                        <label
-                            htmlFor="hitpointsMaxText"
-                            className="character-combat-stats__text"
-                        >
-                            Current Hit Points
-                        </label>
+                        <div className="flex character-combat-stats__field">
+                            <label className="form-input-underline-label" htmlFor="hitpointsMaxText">Current</label>
+                            <input
+                                className="form-input-underline"
+                                type="text"
+                                name="hitpointsMaxText"
+                                id="hitpointsMaxText"
+                                ref={(input) => register(input)}
+                            />
+                        </div>
+                        <div className="flex character-combat-stats__field">
+                            <label className="form-input-underline-label" htmlFor="tempHitPoints">Temporary</label>
+                            <input
+                                className="form-input-underline"
+                                type="text"
+                                name="tempHitPoints"
+                                id="tempHitPoints"
+                                ref={(input) => register(input)}
+                            />
+                        </div>
+                        <span className="character-combat-stats__text">Hit Points</span>
                     </div>
                 </div>
-                <div className="character-combat-stats__hitpoints-temp">
-                    <div className="content">
-                        <textarea
-                            className="character-combat-stats__hitpoints-temp-textarea"
-                            name="tempHitPoints"
-                            id="tempHitPoints"
-                            cols="30"
-                            rows="4"
-                            ref={(input) => register(input)}
-                        ></textarea>
-                        <label
-                            className="character-combat-stats__text"
-                            htmlFor="tempHitPoints"
-                        >
-                            Temporary Hit Points
-                        </label>
-                    </div>
-                </div>
-            </div>
-            <div className="character-combat-stats-row">
                 <div className="character-combat-stats__hit">
                     <div className="content">
-                        <div className="flex">
+                        <div className="flex character-combat-stats__field">
                             <label className="form-input-underline-label" htmlFor="hitDiceTotal">Total</label>
                             <input
                                 className="form-input-underline"
@@ -104,7 +86,7 @@ export default function CharacterCombatStats() {
                                 ref={(input) => register(input)}
                             />
                         </div>
-                        <div className="flex character-combat-stats__hit-dice-used">
+                        <div className="flex character-combat-stats__field">
                             <label className="form-input-underline-label" htmlFor="hitDiceUsed">Used</label>
                             <input
                                 className="form-input-underline"
@@ -114,29 +96,30 @@ export default function CharacterCombatStats() {
                                 ref={(input) => register(input)}
                             />
                         </div>
-                        <label
-                            className="character-combat-stats__text"
-                        >
-                            Hit Dice
-                        </label>
-                    </div>
-                </div>
-                <div className="character-combat-stats__death-saves">
-                    <div className="content">
-                        <textarea
-                            className="character-combat-stats__death-saves-textarea"
-                            name="deathSaves"
-                            id="deathSaves"
-                            cols="30"
-                            rows="4"
-                            ref={(input) => register(input)}
-                        ></textarea>
-                        <label
-                            htmlFor="deathSaves"
-                            className="character-combat-stats__text"
-                        >
-                            Death Saves
-                        </label>
+                        <span className="character-combat-stats__text">Hit Dice</span>
+                        <div className="character-combat-stats__death-saves-fields">
+                            <div className="flex character-combat-stats__field">
+                                <label className="form-input-underline-label" htmlFor="deathSavesSuccess">Success</label>
+                                <input
+                                    className="form-input-underline"
+                                    type="text"
+                                    name="deathSavesSuccess"
+                                    id="deathSavesSuccess"
+                                    ref={(input) => register(input)}
+                                />
+                            </div>
+                            <div className="flex character-combat-stats__field">
+                                <label className="form-input-underline-label" htmlFor="deathSavesFailure">Failure</label>
+                                <input
+                                    className="form-input-underline"
+                                    type="text"
+                                    name="deathSavesFailure"
+                                    id="deathSavesFailure"
+                                    ref={(input) => register(input)}
+                                />
+                            </div>
+                            <span className="character-combat-stats__text">Death Saves</span>
+                        </div>
                     </div>
                 </div>
             </div>
